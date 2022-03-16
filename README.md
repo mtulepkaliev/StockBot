@@ -23,9 +23,9 @@ Open '.env_example', insert your discord bot API key and rename to '.env'
 ## Commands
 ### price
 #### format:
-!stockbot price <Ticker>
+!stockbot price \<Ticker\>
 #### returns:
-Comapny name, ticker, price, day change, % day change
+Company name, ticker, price, day change, % day change
 ## Sources
 https://realpython.com/how-to-make-a-discord-bot-python/#what-is-discord
 
