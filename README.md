@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # StockBot
 Discord bot to provide stock information
 ## Dependencies
@@ -31,6 +30,3 @@ Comapny name, ticker, price, day change, % day change
 https://realpython.com/how-to-make-a-discord-bot-python/#what-is-discord
 
 https://www.toptal.com/developers/gitignore
-=======
-# StockBot
->>>>>>> 1a05e338860328731e930a497fedddfe9d135042

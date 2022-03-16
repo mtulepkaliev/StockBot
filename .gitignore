@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .env
 test.py
 ticker.json
@@ -211,5 +210,4 @@ cython_debug/
 #.idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python
-=======
->>>>>>> 1a05e338860328731e930a497fedddfe9d135042
+
