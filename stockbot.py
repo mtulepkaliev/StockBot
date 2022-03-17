@@ -10,7 +10,7 @@ from yfincode import getPriceOutput
 
 #loads dotenv for KEYS
 load_dotenv()
-DISCORD_TOKEN = os.getenv('MARISA_AUTH')
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
 bot=commands.Bot(command_prefix='!stockbot ')
 
