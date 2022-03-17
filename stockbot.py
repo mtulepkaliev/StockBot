@@ -10,7 +10,7 @@ from yfincode import getPriceOutput
 
 #loads dotenv for KEYS
 load_dotenv()
-DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+DISCORD_TOKEN = os.getenv('MARISA_AUTH')
 
 bot=commands.Bot(command_prefix='!stockbot ')
 
@@ -24,7 +24,7 @@ async def price(context,ticker_name):
     try:
         ticker = yf.Ticker(ticker_name)
         print('Info received on ' + ticker_name)
-        if (ticker.info['regularMarketPrice'] == 'None'):
+        if (str(ticker.info['regularMarketPrice']) == 'None'):
             raise Exception("INVALID_TICKER_ERROR")
         else:
             await context.send(getPriceOutput(ticker.info))
