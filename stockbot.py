@@ -18,19 +18,16 @@ bot=commands.Bot(command_prefix='!stockbot ')
 async def on_ready():
     print('Logged on !')
 
-
 @bot.command()
-async def price(context,arg):
-    ticker_text = str(arg)
-    print('Ticker Requested:' + ticker_text)
+async def price(context,ticker_name):
+    print('Ticker Requested:' + ticker_name)
     try:
-        ticker = yf.Ticker(ticker_text)
-        ticker_info = ticker.info
-        print('Info received on ' + ticker_text)
-        if(str(ticker_info['regularMarketPrice']) == 'None'):
+        ticker = yf.Ticker(ticker_name)
+        print('Info received on ' + ticker_name)
+        if (ticker.info['regularMarketPrice'] == 'None'):
             raise Exception("INVALID_TICKER_ERROR")
         else:
-            await context.send(getPriceOutput(ticker_info))
+            await context.send(getPriceOutput(ticker.info))
     except Exception as e:
         await context.send(content=e)
         return
