@@ -16,10 +16,11 @@ bot=commands.Bot(command_prefix='!stockbot ')
 
 @bot.event
 async def on_ready():
-        print('Logged on !')
+    print('Logged on !')
+
+
 @bot.command()
 async def price(context,arg):
-    print('got inside price')
     ticker_text = str(arg)
     print('Ticker Requested:' + ticker_text)
     try:
@@ -29,10 +30,9 @@ async def price(context,arg):
         if(str(ticker_info['regularMarketPrice']) == 'None'):
             raise Exception("INVALID_TICKER_ERROR")
         else:
-            price = str(ticker_info['regularMarketPrice'])
+            await context.send(getPriceOutput(ticker_info))
     except Exception as e:
         await context.send(content=e)
         return
-    await context.send(content=getPriceOutput(ticker_text,ticker_info['shortName'],price,ticker_info['open']))
 
 bot.run(DISCORD_TOKEN)

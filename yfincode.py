@@ -5,8 +5,11 @@ import yfinance as yf
 import json
 from decimal import *
 
-
-def getPriceOutput(ticker,name,currentPrice,openPrice):
+def getPriceOutput(ticker_info):
+    ticker = ticker_info['symbol']
+    name = ticker_info['shortName']
+    currentPrice = ticker_info['regularMarketPrice']
+    openPrice = ticker_info['open']
     pricechange = Decimal((Decimal(currentPrice) - Decimal(openPrice)))
     pctchange = Decimal(((pricechange/Decimal(openPrice)) * 100))
     pricechange = str(pricechange.quantize(Decimal('0.01')))
