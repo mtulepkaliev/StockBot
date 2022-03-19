@@ -24,11 +24,14 @@ async def price(context,ticker_name):
     try:
         ticker = yf.Ticker(ticker_name)
         print('Info received on ' + ticker_name)
-        if (str(ticker.info['regularMarketPrice']) == 'None'):
+        ticker_stats = ticker.stats()
+        #print('info:' + str(ticker_stats))
+        if (str(ticker_stats['price']['regularMarketPrice']) == 'None'):
             raise Exception("INVALID_TICKER_ERROR")
         else:
-            await context.send(getPriceOutput(ticker.info))
+            await context.send(getPriceOutput(ticker_stats))
     except Exception as e:
+        print("Exception" + str(e))
         await context.send(content=e)
         return
 

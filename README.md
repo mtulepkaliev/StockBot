@@ -11,10 +11,6 @@ Company name, ticker, price, day change, % day change
 ## How to use
 Open '.env_example', insert your discord bot API key and rename to '.env'
 
-## Notes
-### Execution Time
-The lag between issuing a command and receiving a response can sometimes be upwards of 20 seconds, this is due how long it takes to retrieve data from yfinance and not due to my code.
-##### If you know of a way to fix this or an alternate, free API to use please let me know by opening an issue
 ## Dependencies
 ### Python 3.10
 

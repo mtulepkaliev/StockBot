@@ -5,14 +5,14 @@ import json
 from decimal import *
 
 def getPriceOutput(ticker_info):
+    price_stats = ticker_info['price']
     decFormat = Decimal('0.01')
-    price = Decimal(ticker_info['regularMarketPrice'])
-    open = Decimal(ticker_info['open'])
-    pricechange = (price - open).quantize(decFormat)
-    pctchange = ((pricechange / open) * 100).quantize(decFormat)
+    price = Decimal(price_stats['regularMarketPrice']).quantize(decFormat)
+    pricechange = Decimal(price_stats['regularMarketChange']).quantize(decFormat)
+    pctchange = Decimal(price_stats['regularMarketChangePercent'] * 100).quantize(decFormat)
     pctchange = str(pctchange) + '%'
     if (Decimal(pricechange) >= 0):   
         pricechange = '+' + str(pricechange)
         pctchange = '+' + pctchange
-    output = f"{ticker_info['shortName']} ({ticker_info['symbol']}) {price.quantize(decFormat)} {pricechange} {pctchange}"
+    output = f"{price_stats['shortName']} ({price_stats['symbol']}) {price} {pricechange} {pctchange}"
     return output
