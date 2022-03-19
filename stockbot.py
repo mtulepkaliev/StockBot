@@ -12,7 +12,7 @@ from yfincode import getPriceOutput
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
-bot=commands.Bot(command_prefix='!stockbot ')
+bot=commands.Bot(command_prefix='!stock ')
 
 @bot.event
 async def on_ready():

@@ -23,7 +23,7 @@ Open '.env_example', insert your discord bot API key and rename to '.env'
 ## Commands
 ### price
 #### format:
-!stockbot price \<Ticker\>
+!stock price \<Ticker\>
 #### returns:
 Company name, ticker, price, day change, % day change
 ## Sources
