@@ -35,13 +35,14 @@ async def price(context,ticker_name):
             print("Exception:" + str(e))
             await context.send(content='Invalid Ticker, please try again')
             return
+            
         #pass ticker_stats to get the output
-        await context.send(getPriceOutput(ticker_stats))
+        await context.send(embed=getPriceOutput(ticker_stats))
 
     #print unknown exeception for all other exceptions
     except Exception as e:
         print("Exception:" + str(e))
-        await context.send(content='Unknown Exception Occured, please try again')
+        await context.send(content='Unknown Exception Occured, Please Try Again')
         return
 
 bot.run(DISCORD_TOKEN)

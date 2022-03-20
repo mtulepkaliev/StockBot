@@ -32,3 +32,9 @@ Open '.env_example', insert your discord bot API key and rename to '.env'
 https://realpython.com/how-to-make-a-discord-bot-python/#what-is-discord
 
 https://www.toptal.com/developers/gitignore
+
+https://cog-creators.github.io/discord-embed-sandbox/
+
+https://clearbit.com/logo
+
+https://dashboard.clearbit.com/docs?javascript#logo-api
