@@ -4,10 +4,13 @@ Discord bot to provide stock information
 ## Commands
 ### price
 #### format:
-!stock price \<Ticker\>
+!stock price \<Ticker\> \<args\>
 #### returns:
 Company name, ticker, price, day change, % day change
 
+#### args:
+##### ```-range```
+returns the 52 week range and day range of the specified ticker
 ## How to use
 Open '.env_example', insert your discord bot API key and rename to '.env'
 

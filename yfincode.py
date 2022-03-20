@@ -1,12 +1,11 @@
 #Seperate file for getting information from Yahoo finance, not using yet as ticker.info returns large dict and i don't wanna call it ech time as could be slow
 
 import yfinance as yf
-import json
 import requests
 import nextcord
 from decimal import *
 
-def getPriceOutput(ticker_info):
+def getPriceOutput(ticker_info,args):
     #save the part of the dict we need (for readability purposes)
     price_stats = ticker_info['price']
 
@@ -38,7 +37,23 @@ def getPriceOutput(ticker_info):
     embed.add_field(name="Price", value=price, inline=False)
     embed.add_field(name="Day Change", value=pricechange, inline=False)
     embed.add_field(name="Percent Change", value=pctchange, inline=False)
-    
+
+    #add ranges to embed if the user requested them
+    if('-range' in args):
+        #obtain variables
+        daylow = Decimal(price_stats['regularMarketDayLow']).quantize(decFormat)
+        dayhigh = Decimal(price_stats['regularMarketDayHigh']).quantize(decFormat)
+        f2wklow = ticker_info['summaryDetail']['fiftyTwoWeekLow']
+        f2wkhigh = ticker_info['summaryDetail']['fiftyTwoWeekHigh']
+
+        #format strings
+        day_range = f"{daylow} - {dayhigh}"
+        fifty_two_week_range = f"{f2wklow} - {f2wkhigh}"
+
+        #add to embed
+        embed.add_field(name="Day Range", value=day_range, inline=False)
+        embed.add_field(name="52 Week Range", value=fifty_two_week_range, inline=False)
+
     #code to include logo if possible and add attribution
     try:
         logo_url = 'https://logo.clearbit.com/' + str(ticker_info['summaryProfile']['website'])
@@ -49,7 +64,7 @@ def getPriceOutput(ticker_info):
             footer_text = footer_text + ', Logo provided by Clearbit.com'
         else:
             print("No logo avaliable for ticker " + ticker_name)
-            
+
     #exception handling for if no webiste is provided by yfinance (Happens for ETF's and such)
     except KeyError:
         print("No website provided for ticker " + ticker_name)

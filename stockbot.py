@@ -3,7 +3,6 @@ import os
 import nextcord
 from nextcord.ext import commands
 import yfinance as yf
-import re
 from dotenv import load_dotenv
 
 from yfincode import getPriceOutput
@@ -19,7 +18,8 @@ async def on_ready():
     print('Logged on !')
 
 @bot.command()
-async def price(context,ticker_name):
+async def price(context,*args):
+    ticker_name = args[0]
     print('Ticker Requested:' + ticker_name)
     try:
         ticker = yf.Ticker(ticker_name)
@@ -35,9 +35,9 @@ async def price(context,ticker_name):
             print("Exception:" + str(e))
             await context.send(content='Invalid Ticker, please try again')
             return
-            
+
         #pass ticker_stats to get the output
-        await context.send(embed=getPriceOutput(ticker_stats))
+        await context.send(embed=getPriceOutput(ticker_stats,args[1:len(args)]))
 
     #print unknown exeception for all other exceptions
     except Exception as e:
