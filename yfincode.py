@@ -1,11 +1,13 @@
-#Seperate file for getting information from Yahoo finance, not using yet as ticker.info returns large dict and i don't wanna call it ech time as could be slow
+#File for functions invlolving most of the interaction with the Yahoo Finance API
 
-import yfinance as yf
-import requests
 import nextcord
+import requests
+import yfinance as yf
+from nextcord.ext import *
 from decimal import *
 
-def getPriceOutput(ticker_info,args):
+
+def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
     #save the part of the dict we need (for readability purposes)
     price_stats = ticker_info['price']
 
@@ -72,3 +74,14 @@ def getPriceOutput(ticker_info,args):
     embed.set_footer(text=footer_text)
 
     return embed
+
+async def isValidTicker(ticker_text:str,context):
+    try:
+        ticker:yf.Ticker = yf.Ticker(ticker_text)
+        ticker_stats:dict = ticker.stats()
+        ticker_stats['price']['regularMarketPrice']
+    except KeyError as e:
+        #tell user they entered the wrong ticker
+        print("Exception:" + str(e))
+        await context.send(content='Invalid Ticker, please try again')
+        return
