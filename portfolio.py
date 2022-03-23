@@ -1,3 +1,4 @@
+#File for functions involving handing of locally stored user portfolios
 import json
 from decimal import Decimal
 from fileinput import close
@@ -45,7 +46,7 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
             }
             portfolio_dict[user_id][ticker] = info_to_add
             print("updated portfolio:" + str(portfolio_dict))
-            status_code = 101
+            status_code = 1000
         #if the program runs into an unexpected exception, exit out of the function as to avoid improperly writing to json
         except Exception as e:
             print(e)
