@@ -53,7 +53,7 @@ async def portfolio(context,*args):
             share_amt:int = int(args[3])
 
             #check for valid ticker
-            if(not(isValidTicker(ticker,context))):
+            if(not(await isValidTicker(ticker,context))):
                 return
                 
             #add to the user's portfolio and returns the return message

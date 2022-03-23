@@ -84,4 +84,6 @@ async def isValidTicker(ticker_text:str,context):
         #tell user they entered the wrong ticker
         print("Exception:" + str(e))
         await context.send(content='Invalid Ticker, please try again')
-        return
+        return False
+    else:
+        return True
