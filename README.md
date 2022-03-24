@@ -8,7 +8,7 @@ Discord bot to provide stock information
 #### returns:
 Company name, ticker, price, day change, % day change
 #### args:
-##### ```-range```
+```-range``` <br />
 returns the 52 week range and day range of the specified ticker
 
 ## Portfolio Commands
@@ -46,15 +46,15 @@ Run stockbot.py
 **Python Site:** https://www.python.org/downloads/
 
 ### python-dotenv
-**Project Page:** https://pypi.org/project/python-dotenv/
+**Project Page:** https://pypi.org/project/python-dotenv/ <br />
 **Installation:** ```pip install python-dotenv```
 
 ### yfinance
-**Project Page:** https://github.com/ranaroussi/yfinance
+**Project Page:** https://github.com/ranaroussi/yfinance <br />
 **Installation:** ```pip install yfinance```
 
 ### nextcord
-**Project Page:** https://github.com/nextcord/nextcord
+**Project Page:** https://github.com/nextcord/nextcord <br />
 **Installation:** ```pip install nextcord```
 
 ## Sources
