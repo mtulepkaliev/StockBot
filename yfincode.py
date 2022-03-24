@@ -6,17 +6,17 @@ import yfinance as yf
 from nextcord.ext import *
 from decimal import *
 
+from portfolio import DECIMAL_FORMAT
+
 
 def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
     #save the part of the dict we need (for readability purposes)
     price_stats = ticker_info['price']
 
-    decFormat = Decimal('0.01')
-
     #retreve needed varaibles
-    price = Decimal(price_stats['regularMarketPrice']).quantize(decFormat)
-    pricechange = Decimal(price_stats['regularMarketChange']).quantize(decFormat)
-    pctchange = Decimal(price_stats['regularMarketChangePercent'] * 100).quantize(decFormat)
+    price = Decimal(price_stats['regularMarketPrice']).quantize(DECIMAL_FORMAT)
+    pricechange = Decimal(price_stats['regularMarketChange']).quantize(DECIMAL_FORMAT)
+    pctchange = Decimal(price_stats['regularMarketChangePercent'] * 100).quantize(DECIMAL_FORMAT)
 
     pctchange = str(pctchange) + '%'
 
@@ -43,8 +43,8 @@ def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
     #add ranges to embed if the user requested them
     if('-range' in args):
         #obtain variables
-        daylow = Decimal(price_stats['regularMarketDayLow']).quantize(decFormat)
-        dayhigh = Decimal(price_stats['regularMarketDayHigh']).quantize(decFormat)
+        daylow = Decimal(price_stats['regularMarketDayLow']).quantize(DECIMAL_FORMAT)
+        dayhigh = Decimal(price_stats['regularMarketDayHigh']).quantize(DECIMAL_FORMAT)
         f2wklow = ticker_info['summaryDetail']['fiftyTwoWeekLow']
         f2wkhigh = ticker_info['summaryDetail']['fiftyTwoWeekHigh']
 

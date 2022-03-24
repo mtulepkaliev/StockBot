@@ -1,5 +1,6 @@
 
 import os
+import traceback
 from decimal import Decimal
 
 import nextcord
@@ -36,7 +37,7 @@ async def price(context,*args):
 
     #print unknown exeception for all other exceptions
     except Exception as e:
-        print("Exception:" + str(e))
+        traceback.print_exc()
         await context.send(content='Unknown Exception Occured, Please Try Again')
         return
 
@@ -59,10 +60,21 @@ async def portfolio(context,*args):
             #add to the user's portfolio and returns the return message
             return_message = portfolio_add(user_id, ticker,avg_price,share_amt)
             await context.send(content=return_message)
-
+        if(command == 'show'):
+            print(str(args))
+            print(context.message.mentions)
+            try:
+                user:str = str(context.message.mentions[0].id)
+                user_name:str = context.message.mentions[0].display_name
+            except IndexError as e:
+                print(e)
+                print("No user specified, defaulting to sender")
+                user:str = str(context.author.id)
+                user_name:str = (await bot.fetch_user(user)).display_name
+            await context.send(embed = portfolio_show(user,user_name))
     #print unknown exeception for all other exceptions
     except Exception as e:
-        print("Exception:" + str(e))
+        traceback.print_exc()
         await context.send(content='Unknown Exception Occured, Please Try Again')
         return
     

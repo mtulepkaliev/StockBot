@@ -3,6 +3,11 @@ import json
 from decimal import Decimal
 from fileinput import close
 
+import nextcord
+
+#I know, global variable bad, but it's a constant,ok
+global DECIMAL_FORMAT
+DECIMAL_FORMAT = Decimal('0.01')
 
 def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
 
@@ -14,8 +19,6 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
     except FileNotFoundError:
         portfolio_dict = {}
     
-    decFormat = Decimal('0.01') 
-
     #test if the user is in the dictioanry
     try:
         portfolio_dict[user_id]
@@ -32,7 +35,6 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
             }
         }
         portfolio_dict.update(info_to_add)
-        print("updated portfolio:" + str(portfolio_dict))
         status_code = 100
     else:
         #test if the ticker is in the dicitoanry
@@ -45,7 +47,6 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
                 "avgPrice": str(price)
             }
             portfolio_dict[user_id][ticker] = info_to_add
-            print("updated portfolio:" + str(portfolio_dict))
             status_code = 1000
         #if the program runs into an unexpected exception, exit out of the function as to avoid improperly writing to json
         except Exception as e:
@@ -59,12 +60,11 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
 
             #calculate the new average share price and total amount of shares held
             new_share_amt = amt_held + share_amt
-            new_avg_price = str((Decimal((amt_held * avgprice) + price*share_amt)/ new_share_amt).quantize(decFormat))
+            new_avg_price = str((Decimal((amt_held * avgprice) + price*share_amt)/ new_share_amt).quantize(DECIMAL_FORMAT))
 
             #write the new values into the dictionary
             portfolio_dict[user_id][ticker]['amount'] = new_share_amt
             portfolio_dict[user_id][ticker]['avgPrice'] = new_avg_price
-            print (str(portfolio_dict))
             status_code = 1
     #write data back to json
     with open('portfolio.json','w') as portfolio_json:
@@ -72,6 +72,32 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
         portfolio_json.close()  
     return generateReturnMsg(status_code)
 
+def portfolio_show(user_id:str,user_name:str) -> nextcord.Embed:
+    with open('portfolio.json','r') as portfolio_json:
+        portfolio_dict:dict = json.load(portfolio_json)
+        portfolio_json.close()
+    
+    #test if user has a portfolio
+    try:
+        portfolio_dict[user_id]
+    except KeyError:
+        embed=nextcord.Embed(title='User Does Not Have a Portfolio')
+        return embed
+    print('portfolio requested for user ' + user_id)
+    embed=nextcord.Embed(title=f'{user_name}\'s Portfolio')
+    total_cost_basis:Decimal = 0
+    num_stocks:int = 0
+
+    for ticker in portfolio_dict[user_id]:
+        num_shares:int = int(portfolio_dict[user_id][ticker]['amount'])
+        avgPrice:Decimal = Decimal(portfolio_dict[user_id][ticker]['avgPrice'])
+        cost_basis = Decimal(avgPrice * num_shares).quantize(DECIMAL_FORMAT)
+
+        num_stocks += 1
+        total_cost_basis += cost_basis
+        embed.add_field(name=str(ticker), value= f'{num_shares} shares @ an average of ${avgPrice} per share, total cost basis of {cost_basis}', inline=False)
+    embed.insert_field_at(0,name="Total Cost basis",value=f'${total_cost_basis}')
+    return embed
 
 #turns status code into output for user, just returns status code for now
 #TODO return more meaningful output to user

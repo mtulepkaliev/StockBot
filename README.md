@@ -21,10 +21,13 @@ Adds the given number of shares at the given average price for given ticker to t
 #### Note:
 If the user already has shares for a given ticker, the added ones will be combined with the existing ones and the average price automatically adjusted
 
-### remove
-Coming soon
-
 ### show
+#### format:
+!stock portfolio show @\<USER\>(optional)
+#### function:
+Shows the given user's portfolio, shows the sender's portfolio if no user is specified
+
+### remove
 Coming soon
 
 ### change
@@ -35,6 +38,7 @@ Coming soon
 
 ## How to use
 Open '.env_example', insert your discord bot API key and rename to '.env'
+Run stockbot.py
 
 ## Dependencies
 ### Python 3.10
