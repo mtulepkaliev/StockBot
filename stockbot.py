@@ -32,7 +32,7 @@ async def price(context,*args):
         print('Info received on ' + ticker_name)
 
         #returns data if the ticker is valid
-        if(isValidTicker(ticker_name,context)):
+        if(await isValidTicker(ticker_name,context)):
             await context.send(embed=getPriceOutput(ticker_stats,args[1:len(args)]))
 
     #print unknown exeception for all other exceptions
