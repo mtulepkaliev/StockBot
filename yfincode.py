@@ -6,7 +6,7 @@ import yfinance as yf
 from nextcord.ext import *
 from decimal import *
 
-from portfolio import DECIMAL_FORMAT
+from portfolio_add import DECIMAL_FORMAT
 
 
 def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:

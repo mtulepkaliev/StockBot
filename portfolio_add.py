@@ -70,7 +70,7 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
     with open('portfolio.json','w') as portfolio_json:
         json.dump(portfolio_dict,portfolio_json)
         portfolio_json.close()  
-    return generateReturnMsg(status_code)
+    return generateAddReturnMsg(status_code)
 
 def portfolio_show(user_id:str,user_name:str) -> nextcord.Embed:
     with open('portfolio.json','r') as portfolio_json:
@@ -101,5 +101,5 @@ def portfolio_show(user_id:str,user_name:str) -> nextcord.Embed:
 
 #turns status code into output for user, just returns status code for now
 #TODO return more meaningful output to user
-def generateReturnMsg(status_code) -> str:
+def generateAddReturnMsg(status_code) -> str:
     return status_code
