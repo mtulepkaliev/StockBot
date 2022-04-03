@@ -1,21 +1,13 @@
 #File to add stocks to user's portfolio
-import json
 from decimal import Decimal
-from fileinput import close
+from portfolio import *
 
-import nextcord
-
-#I know, global variable bad, but it's a constant,ok
-global DECIMAL_FORMAT
-DECIMAL_FORMAT = Decimal('0.01')
 
 def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
 
     #import portfolios json into local dictionary
     try:
-        with open('portfolio.json','r') as portfolio_json:
-            portfolio_dict:dict = json.load(portfolio_json)
-            portfolio_json.close()
+        portfolio_dict = getPortfolioDict()
     except FileNotFoundError:
         portfolio_dict = {}
     
@@ -67,9 +59,7 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
             portfolio_dict[user_id][ticker]['avgPrice'] = new_avg_price
             status_code = 1
     #write data back to json
-    with open('portfolio.json','w') as portfolio_json:
-        json.dump(portfolio_dict,portfolio_json)
-        portfolio_json.close()  
+    writePortfolio(portfolio_dict)
     return generateAddReturnMsg(status_code)
 
 #turns status code into output for user, just returns status code for now

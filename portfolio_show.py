@@ -1,13 +1,11 @@
 import nextcord
 import json
 from decimal import Decimal
-from portfolio_add import DECIMAL_FORMAT
+from portfolio import *
 
 
 def portfolio_show(user_id:str,user_name:str) -> nextcord.Embed:
-    with open('portfolio.json','r') as portfolio_json:
-        portfolio_dict:dict = json.load(portfolio_json)
-        portfolio_json.close()
+    portfolio_dict = getPortfolioDict()
     
     #test if user has a portfolio
     try:
