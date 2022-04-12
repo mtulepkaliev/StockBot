@@ -21,10 +21,11 @@ def portfolio_show(user_id:str,user_name:str) -> nextcord.Embed:
     for ticker in portfolio_dict[user_id]:
         num_shares:int = int(portfolio_dict[user_id][ticker]['amount'])
         avgPrice:Decimal = Decimal(portfolio_dict[user_id][ticker]['avgPrice'])
-        cost_basis = Decimal(avgPrice * num_shares).quantize(DECIMAL_FORMAT)
+        cost_basis = Decimal(avgPrice * num_shares)
 
         num_stocks += 1
         total_cost_basis += cost_basis
+        total_cost_basis.quantize(DECIMAL_FORMAT)
         embed.add_field(name=str(ticker), value= f'{num_shares} shares @ an average of ${avgPrice} per share, total cost basis of {cost_basis}', inline=False)
     embed.insert_field_at(0,name="Total Cost basis",value=f'${total_cost_basis}')
     return embed

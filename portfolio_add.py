@@ -52,7 +52,7 @@ def portfolio_add(user_id:str,ticker:str,price:Decimal,share_amt:int) -> str:
 
             #calculate the new average share price and total amount of shares held
             new_share_amt = amt_held + share_amt
-            new_avg_price = str((Decimal((amt_held * avgprice) + price*share_amt)/ new_share_amt).quantize(DECIMAL_FORMAT))
+            new_avg_price = str((Decimal((amt_held * avgprice) + price*share_amt)/ new_share_amt))
 
             #write the new values into the dictionary
             portfolio_dict[user_id][ticker]['amount'] = new_share_amt
