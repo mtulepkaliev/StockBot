@@ -8,8 +8,6 @@ import yfinance as yf
 from dotenv import load_dotenv
 from nextcord.ext import commands
 
-from portfolio_add import *
-from portfolio_show import *
 from yfincode import *
 
 #loads dotenv for KEYS
