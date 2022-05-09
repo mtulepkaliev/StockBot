@@ -47,8 +47,8 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
         #obtain variables
         daylow = Decimal(tickerInfo['dayLow']).quantize(DECIMAL_FORMAT)
         dayhigh = Decimal(tickerInfo['dayHigh']).quantize(DECIMAL_FORMAT)
-        f2wklow = tickerInfo['fiftyTwoWeekLow']
-        f2wkhigh = tickerInfo['fiftyTwoWeekHigh']
+        f2wklow = Decimal(tickerInfo['fiftyTwoWeekLow']).quantize(DECIMAL_FORMAT)
+        f2wkhigh = Decimal(tickerInfo['fiftyTwoWeekHigh']).quantize(DECIMAL_FORMAT)
 
         #format strings
         day_range = f"{daylow} - {dayhigh}"
@@ -76,8 +76,10 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
     return embed
 
 async def isValidTicker(ticker_text:str,context):
+    #return true if the ticker is in the database, we make sure to only insert valid tickers, this prevents us from having to query yfinance
     if(hasTicker(ticker_text)):
         return True
+
     try:
         ticker:yf.Ticker = yf.Ticker(ticker_text)
         ticker_stats:dict = ticker.stats()
