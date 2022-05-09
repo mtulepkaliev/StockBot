@@ -25,14 +25,9 @@ async def price(context,*args):
     ticker_name:str = args[0]
     print('Ticker Requested:' + ticker_name)
     try:
-        ticker = yf.Ticker(ticker_name)
-
-        ticker_stats:dict = ticker.stats()
-        print('Info received on ' + ticker_name)
-
         #returns data if the ticker is valid
         if(await isValidTicker(ticker_name,context)):
-            await context.send(embed=getPriceOutput(ticker_stats,args[1:len(args)]))
+            await context.send(embed=getPriceOutput(ticker_name,args[1:len(args)]))
 
     #print unknown exeception for all other exceptions
     except Exception as e:
