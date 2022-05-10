@@ -7,6 +7,7 @@ import nextcord
 import yfinance as yf
 from dotenv import load_dotenv
 from nextcord.ext import commands
+from portfolio import portfolio_add
 
 from yfincode import *
 

@@ -11,6 +11,7 @@ from settings import REFRESH_TIMEOUT_SEC
 
 #establish connection and cursor to return rows
 con = sqlite3.connect("portfolio.db")
+con.execute("PRAGMA foreign_keys = ON;")
 con.row_factory = sqlite3.Row
 cursor = con.cursor()
 
@@ -21,7 +22,7 @@ def getTickerInfo(tickerText:str) -> sqlite3.Row:
     #if there is no data add the ticker data to the database
     if(not hasTicker(tickerText)):
         print(tickerText + " not found in table, adding entry")
-        updateTickerInfo(tickerText,())
+        updateTickerInfo(tickerText)
 
     #calculate how long it has been since the ticker was last updated
     secondsSinceUpdate:int = int(cursor.execute("SELECT strftime('%s') - lastRefresh FROM Tickers WHERE symbol = ?",(tickerText,)).fetchone()[0])
@@ -30,7 +31,7 @@ def getTickerInfo(tickerText:str) -> sqlite3.Row:
     #update the ticker info if it is too far out of date
     if(secondsSinceUpdate > REFRESH_TIMEOUT_SEC):
         print("Updating info on " + tickerText)
-        updateTickerInfo(tickerText,())
+        updateTickerInfo(tickerText)
 
 
     info:list = cursor.execute(sqlQuery,(tickerText,)).fetchone()
@@ -45,7 +46,7 @@ def hasTicker(tickerText:str) -> bool:
     return True
 
 #updates the ticker info in the database
-def updateTickerInfo(tickerText:str,args:Tuple) -> None:
+def updateTickerInfo(tickerText:str) -> None:
     ticker = yf.Ticker(tickerText)
     ticker_stats:dict = ticker.stats()
     print('Info received on ' + tickerText)
