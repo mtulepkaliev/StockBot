@@ -20,3 +20,29 @@ def insertPosition(user_id:int, ticker:str,avg_price:Decimal,share_amt:int) -> i
         traceback.print_exc()
         print(e)
         return 0
+
+def getUserPositions(user_id:int) -> list:
+    userPositions = cursor.execute("SELECT positionID FROM USER_POSITIONS WHERE userID = ?",(user_id,)).fetchall()
+    posList:list = []
+    for position in userPositions:
+        posList.append(position['positionID'])
+    return posList
+def getPositionInfo(position_id:int) -> sqlite3.Row:
+    position = cursor.execute("SELECT * FROM USER_POSITIONS WHERE positionID = ?",(position_id,)).fetchone()
+    return position
+    
+def getPositionInfoByStock(user_id:int) -> sqlite3.Row:
+    position = cursor.execute('''SELECT
+    symbol, 
+    currentPrice, 
+    openPrice,
+    priceChange,
+    total(purchasePrice * numShares)/total(numShares) AS "averagePrice",
+    SUM(numShares) AS "totalShares",
+    (total(purchasePrice * numShares)/total(numShares)) * SUM(numShares) AS "costBasis",
+    dayPLPct,
+    priceChange * SUM(numShares) AS "dayPL" 
+    FROM USER_POSITIONS 
+    WHERE userID=?
+    GROUP BY symbol''',(user_id,)).fetchall()
+    return position

@@ -1,8 +1,6 @@
 #code that interacts with databas
 #using a database allows for us to store data and not have to query yfinance as much
 
-from contextlib import closing
-from decimal import Decimal
 import sqlite3
 from typing import *
 import yfinance as yf
@@ -24,16 +22,7 @@ def getTickerInfo(tickerText:str) -> sqlite3.Row:
         print(tickerText + " not found in table, adding entry")
         updateTickerInfo(tickerText)
 
-    #calculate how long it has been since the ticker was last updated
-    secondsSinceUpdate:int = int(cursor.execute("SELECT strftime('%s') - lastRefresh FROM Tickers WHERE symbol = ?",(tickerText,)).fetchone()[0])
-    print("secSinceUpdate:" + str(secondsSinceUpdate))
-
-    #update the ticker info if it is too far out of date
-    if(secondsSinceUpdate > REFRESH_TIMEOUT_SEC):
-        print("Updating info on " + tickerText)
-        updateTickerInfo(tickerText)
-
-
+    checkTickerRefresh(tickerText)
     info:list = cursor.execute(sqlQuery,(tickerText,)).fetchone()
     return info
 
@@ -45,6 +34,18 @@ def hasTicker(tickerText:str) -> bool:
         return False
     return True
 
+
+def checkTickerRefresh(tickerText:str) -> None:
+    '''checks if the ticker has been updated and udates it if it is too far out of date'''
+    #calculate how long it has been since the ticker was last updated
+    secondsSinceUpdate:int = int(cursor.execute("SELECT strftime('%s') - lastRefresh FROM Tickers WHERE symbol = ?",(tickerText,)).fetchone()[0])
+    print("secSinceUpdate:" + str(secondsSinceUpdate))
+
+    #update the ticker info if it is too far out of date
+    if(secondsSinceUpdate > REFRESH_TIMEOUT_SEC):
+        print("Updating info on " + tickerText)
+        updateTickerInfo(tickerText)
+    return
 #updates the ticker info in the database
 def updateTickerInfo(tickerText:str) -> None:
     ticker = yf.Ticker(tickerText)

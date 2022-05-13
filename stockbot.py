@@ -7,7 +7,7 @@ import nextcord
 import yfinance as yf
 from dotenv import load_dotenv
 from nextcord.ext import commands
-from portfolio import portfolio_add
+from portfolio import checkShowArgs, portfolio_add, portfolio_show
 
 from yfincode import *
 
@@ -56,8 +56,6 @@ async def portfolio(context,*args):
             return_message = portfolio_add(user_id, ticker,avg_price,share_amt)
             await context.send(content=return_message)
         if(command == 'show'):
-            print(str(args))
-            print(context.message.mentions)
             try:
                 user:str = str(context.message.mentions[0].id)
                 user_name:str = context.message.mentions[0].display_name
@@ -65,8 +63,12 @@ async def portfolio(context,*args):
                 print(e)
                 print("No user specified, defaulting to sender")
                 user:str = str(context.author.id)
-                user_name:str = (await bot.fetch_user(user)).display_name
-            await context.send(embed = portfolio_show(user,user_name))
+                user_name:str = (context.author.display_name)
+
+            #convert all provided args to lowercase
+            argsList = checkShowArgs(context)
+
+            await context.send(embed = portfolio_show(user,user_name,argsList))
     #print unknown exeception for all other exceptions
     except Exception as e:
         traceback.print_exc()
