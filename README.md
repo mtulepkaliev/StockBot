@@ -18,15 +18,20 @@ These commands are used to set up and track a user's portfolio, the user adds th
 !stock portfolio add \<Ticker\> \<Average Price\> \<# of Shares\>
 #### function:
 Adds the given number of shares at the given average price for given ticker to the user's portfolio tracker
-#### Note:
-If the user already has shares for a given ticker, the added ones will be combined with the existing ones and the average price automatically adjusted
 
 ### show
 #### format:
-!stock portfolio show @\<USER\>(optional)
+!stock portfolio show @\<USER\>(optional) \<args\>(optional)
 #### function:
 Shows the given user's portfolio, shows the sender's portfolio if no user is specified
 
+#### display args:
+```-net``` <br />
+Shows the total cost basis for the given user <br />
+```-brief``` <br />
+(default) Shows the average price, # of shares and cost basis of each ticker that the user holds <br />
+```-full``` <br />
+Shows each position that the user hold not grouping by ticker
 ### remove
 Coming soon
 
