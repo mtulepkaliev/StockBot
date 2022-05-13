@@ -5,6 +5,11 @@ stats.json
 requirements.txt
 TODO.txt
 portfolio.json
+*.XML
+old_*.*
+portfolio.db
+*.db-journal
+*.sqbpro
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,python

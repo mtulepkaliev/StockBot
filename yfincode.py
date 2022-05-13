@@ -1,22 +1,26 @@
 #File for functions invlolving most of the interaction with the Yahoo Finance API
 
+from decimal import *
+from sqlite3 import Row
+from typing import Tuple
 import nextcord
 import requests
 import yfinance as yf
 from nextcord.ext import *
-from decimal import *
+from settings import DECIMAL_FORMAT
+from sqliteDB import getTickerInfo, hasTicker
 
-from portfolio_add import DECIMAL_FORMAT
 
-
-def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
+def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
+    '''returns the embed to output on a ticker's info'''
+    
     #save the part of the dict we need (for readability purposes)
-    price_stats = ticker_info['price']
+    tickerInfo:Row = getTickerInfo(tickerText)
 
     #retreve needed varaibles
-    price = Decimal(price_stats['regularMarketPrice']).quantize(DECIMAL_FORMAT)
-    pricechange = Decimal(price_stats['regularMarketChange']).quantize(DECIMAL_FORMAT)
-    pctchange = Decimal(price_stats['regularMarketChangePercent'] * 100).quantize(DECIMAL_FORMAT)
+    price = Decimal(tickerInfo['currentPrice']).quantize(DECIMAL_FORMAT)
+    pricechange = Decimal(tickerInfo['priceChange']).quantize(DECIMAL_FORMAT)
+    pctchange = Decimal(tickerInfo['percentChange'] * 100).quantize(DECIMAL_FORMAT)
 
     pctchange = str(pctchange) + '%'
 
@@ -30,8 +34,8 @@ def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
 
 
     #retreive needed output variables
-    ticker_name = price_stats['symbol']
-    short_name = price_stats['shortName']
+    ticker_name = tickerInfo['symbol']
+    short_name = tickerInfo['companyName']
     yfinurl = 'https://finance.yahoo.com/quote/' + str(ticker_name)
     footer_text = "Price data is delayed by 15 minutes"
 
@@ -43,10 +47,10 @@ def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
     #add ranges to embed if the user requested them
     if('-range' in args):
         #obtain variables
-        daylow = Decimal(price_stats['regularMarketDayLow']).quantize(DECIMAL_FORMAT)
-        dayhigh = Decimal(price_stats['regularMarketDayHigh']).quantize(DECIMAL_FORMAT)
-        f2wklow = ticker_info['summaryDetail']['fiftyTwoWeekLow']
-        f2wkhigh = ticker_info['summaryDetail']['fiftyTwoWeekHigh']
+        daylow = Decimal(tickerInfo['dayLow']).quantize(DECIMAL_FORMAT)
+        dayhigh = Decimal(tickerInfo['dayHigh']).quantize(DECIMAL_FORMAT)
+        f2wklow = Decimal(tickerInfo['fiftyTwoWeekLow']).quantize(DECIMAL_FORMAT)
+        f2wkhigh = Decimal(tickerInfo['fiftyTwoWeekHigh']).quantize(DECIMAL_FORMAT)
 
         #format strings
         day_range = f"{daylow} - {dayhigh}"
@@ -57,8 +61,8 @@ def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
         embed.add_field(name="52 Week Range", value=fifty_two_week_range, inline=False)
 
     #code to include logo if possible and add attribution
-    try:
-        logo_url = 'https://logo.clearbit.com/' + str(ticker_info['summaryProfile']['website'])
+    if(tickerInfo['website'] != None):
+        logo_url = 'https://logo.clearbit.com/' + str(tickerInfo['website'])
 
         #add thumbnail and attribution if clearbit has a logo for the company (status 404 means no logo)
         if(requests.head(logo_url).status_code != 404):
@@ -66,9 +70,7 @@ def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
             footer_text = footer_text + ', Logo provided by Clearbit.com'
         else:
             print("No logo avaliable for ticker " + ticker_name)
-
-    #exception handling for if no webiste is provided by yfinance (Happens for ETF's and such)
-    except KeyError:
+    else:
         print("No website provided for ticker " + ticker_name)
 
     embed.set_footer(text=footer_text)
@@ -76,6 +78,11 @@ def getPriceOutput(ticker_info:dict,args:tuple) -> nextcord.Embed:
     return embed
 
 async def isValidTicker(ticker_text:str,context):
+    '''return true if the ticker is in the database, we make sure to only insert valid tickers, this prevents us from having to query yfinance'''
+
+    if(hasTicker(ticker_text)):
+        return True
+
     try:
         ticker:yf.Ticker = yf.Ticker(ticker_text)
         ticker_stats:dict = ticker.stats()
