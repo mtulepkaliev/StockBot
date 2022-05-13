@@ -1,4 +1,5 @@
 from decimal import Decimal
+from symtable import Symbol
 
 import nextcord
 
@@ -33,6 +34,7 @@ def portfolio_show(user_id:int,user_name:str,args:list) -> nextcord.Embed:
         userPostions = getUserPositions(user_id)
         for position in userPostions:
             position_info = getPositionInfo(position)
+            positionId = position_info['positionID']
             ticker = position_info['symbol']
             num_shares:int = int(position_info['numShares'])
             sharePrice:Decimal = Decimal(position_info['purchasePrice'])
@@ -40,7 +42,7 @@ def portfolio_show(user_id:int,user_name:str,args:list) -> nextcord.Embed:
 
             total_cost_basis += cost_basis
             total_cost_basis.quantize(DECIMAL_FORMAT)
-            embed.add_field(name=ticker, value= f'{num_shares} shares for ${sharePrice} per share, total cost basis of ${cost_basis}', inline=False)
+            embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{num_shares} shares for ${sharePrice} per share, total cost basis of ${cost_basis}', inline=False)
         embed.insert_field_at(0,name="Total Cost basis",value=f'${total_cost_basis}')
         return embed
     if('-brief' in args or '-net' in args):
