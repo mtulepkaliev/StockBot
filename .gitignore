@@ -7,7 +7,7 @@ TODO.txt
 portfolio.json
 *.XML
 old_*.*
-*.db
+portfolio.db
 *.db-journal
 *.sqbpro
 

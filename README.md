@@ -42,8 +42,10 @@ Coming soon
 Coming soon
 
 ## How to use
-Open '.env_example', insert your discord bot API key and rename to '.env'
-Run stockbot.py
+Open '.env_example', insert your discord bot API key and rename to '.env' </br>
+Rename 'portfolio_ex.db' to 'portfolio.db'</br>
+Run stockbot.py </br>
+
 
 ## Dependencies
 ### Python 3.10
