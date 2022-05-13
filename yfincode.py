@@ -12,6 +12,8 @@ from sqliteDB import getTickerInfo, hasTicker
 
 
 def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
+    '''returns the embed to output on a ticker's info'''
+    
     #save the part of the dict we need (for readability purposes)
     tickerInfo:Row = getTickerInfo(tickerText)
 
@@ -76,7 +78,8 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
     return embed
 
 async def isValidTicker(ticker_text:str,context):
-    #return true if the ticker is in the database, we make sure to only insert valid tickers, this prevents us from having to query yfinance
+    '''return true if the ticker is in the database, we make sure to only insert valid tickers, this prevents us from having to query yfinance'''
+
     if(hasTicker(ticker_text)):
         return True
 

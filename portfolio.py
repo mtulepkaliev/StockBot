@@ -1,5 +1,6 @@
+#file for portfolio functions
+
 from decimal import Decimal
-from symtable import Symbol
 
 import nextcord
 
@@ -12,6 +13,7 @@ from userSQLiteDB import userCheck, userExists
 
 def portfolio_add(user_id:int, ticker:str,avg_price:Decimal,share_amt:int) -> str:
     '''adds position to user's portfolio and returns message on if it was successful'''
+
     userCheck(user_id)
     if(not hasTicker(ticker)):
         updateTickerInfo(ticker)
@@ -23,60 +25,86 @@ def portfolio_add(user_id:int, ticker:str,avg_price:Decimal,share_amt:int) -> st
         return "Unable to add to portfolio"
 
 def portfolio_show(user_id:int,user_name:str,args:list) -> nextcord.Embed:
+    '''returns the user's portfolio as an embed'''
+
+    #make sure the user exists
     if(not userExists(user_id)):
         return nextcord.Embed(title="User does not have portfolio")
     
     print('portfolio requested for user ' + user_id)
     embed=nextcord.Embed(title=f'{user_name}\'s Portfolio')
-    total_cost_basis:Decimal = 0
+    totalCostBasis:Decimal = 0
 
     if('-full' in args):
+
+        #get list of position ID's held by the user
         userPostions = getUserPositions(user_id)
+
+
         for position in userPostions:
-            position_info = getPositionInfo(position)
-            positionId = position_info['positionID']
-            ticker = position_info['symbol']
-            num_shares:int = int(position_info['numShares'])
-            sharePrice:Decimal = Decimal(position_info['purchasePrice'])
-            cost_basis = Decimal(sharePrice * num_shares)
 
-            total_cost_basis += cost_basis
-            total_cost_basis.quantize(DECIMAL_FORMAT)
-            embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{num_shares} shares for ${sharePrice} per share, total cost basis of ${cost_basis}', inline=False)
-        embed.insert_field_at(0,name="Total Cost basis",value=f'${total_cost_basis}')
+            #get the info on that position
+            positionInfo = getPositionInfo(position)
+
+            #save needed variables
+            positionId = positionInfo['positionID']
+            ticker = positionInfo['symbol']
+            numShares:int = int(positionInfo['numShares'])
+            sharePrice:Decimal = Decimal(positionInfo['purchasePrice'])
+            costBasis = Decimal(positionInfo['costBasis'])
+
+            totalCostBasis += costBasis
+
+            #add the position to the embed
+            embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${sharePrice} per share, total cost basis of ${costBasis}', inline=False)
+        
+        totalCostBasis.quantize(DECIMAL_FORMAT)
+
+        #add the total cost basis to the beginning
+        embed.insert_field_at(0,name="Total Cost basis",value=f'${totalCostBasis}')
         return embed
-    if('-brief' in args or '-net' in args):
-        userTickers = getPositionInfoByStock(user_id)
-        for ticker in userTickers:
-            ticker_name = ticker['symbol']
-            num_shares:int = int(ticker['totalShares'])
-            avgPrice:Decimal = Decimal(ticker['averagePrice']).quantize(DECIMAL_FORMAT)
-            cost_basis = Decimal(ticker['costBasis']).quantize(DECIMAL_FORMAT)
 
-            total_cost_basis += cost_basis
+    if('-brief' in args or '-net' in args):
+
+        #get a list of Rows for the user by stock
+        userTickers = getPositionInfoByStock(user_id)
+
+        for ticker in userTickers:
+
+            #save needed variables
+            ticker_name = ticker['symbol']
+            numShares:int = int(ticker['totalShares'])
+            avgPrice:Decimal = Decimal(ticker['averagePrice']).quantize(DECIMAL_FORMAT)
+            costBasis = Decimal(ticker['costBasis']).quantize(DECIMAL_FORMAT)
+
+            totalCostBasis += costBasis
+
+            #add the ticker if we are showing all of the tickers
             if('-brief' in args):
-                embed.add_field(name=ticker_name, value= f'{num_shares} shares @ an average of ${avgPrice} per share, total cost basis of {cost_basis}', inline=False)
-        total_cost_basis.quantize(DECIMAL_FORMAT)
-        embed.insert_field_at(0,name="Total Cost basis",value=f'${total_cost_basis}')
+                embed.add_field(name=ticker_name, value= f'{numShares} shares @ an average of ${avgPrice} per share, total cost basis of {costBasis}', inline=False)
+        totalCostBasis.quantize(DECIMAL_FORMAT)
+
+        #add the total cost basis of to the beginning
+        embed.insert_field_at(0,name="Total Cost basis",value=f'${totalCostBasis}')
         return embed
 
 
 def checkShowArgs(context) -> list:
     '''checks if the args provided for portfolio_show are valid and returns them'''
+
     #list of valid arguments
     rangeArgs:list = ["-day","-open"]
     displayArgs:list = ["-net","-brief","-full"]
 
+    #remove show from the list of args
     args = context.args[1:]
-
-    #remove show from list of args
-    args.remove("show")
 
     #convert all provided args to lowercase
     args = [s.lower() for s in args]
 
     #check if all provided args are valid
     for arg in args[:]:
+        #remove the user arg if it was provided
         if(arg.startswith("<@")):
             args.remove(arg)
             continue
@@ -90,9 +118,10 @@ def checkShowArgs(context) -> list:
             print(arg)
             raise ValueError("Too many display arguments provided")
      
-
+    #add default arguments if no range or display arguments were given
     if(len(set(args).intersection(set(rangeArgs))) == 0):
         args.append("-day")
     if(len(set(args).intersection(set(displayArgs))) == 0):
         args.append("-brief")
+
     return args

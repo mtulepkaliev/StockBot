@@ -1,3 +1,4 @@
+#main bot function
 
 import os
 import traceback
@@ -42,6 +43,8 @@ async def portfolio(context,*args):
         #retreive user id and command
         user_id:str = str(context.author.id) 
         command:str = args[0]
+
+        #add command
         if(command == 'add'):
             #retreive variables from args
             ticker:str = args[1]
@@ -50,12 +53,15 @@ async def portfolio(context,*args):
 
             #check for valid ticker
             if(not(await isValidTicker(ticker,context))):
+                await context.send(content="Invalid Ticker Provided")
                 return
                 
             #add to the user's portfolio and returns the return message
             return_message = portfolio_add(user_id, ticker,avg_price,share_amt)
             await context.send(content=return_message)
         if(command == 'show'):
+
+            #determine if the user requested another user's portfolio
             try:
                 user:str = str(context.message.mentions[0].id)
                 user_name:str = context.message.mentions[0].display_name
@@ -65,8 +71,9 @@ async def portfolio(context,*args):
                 user:str = str(context.author.id)
                 user_name:str = (context.author.display_name)
 
-            #convert all provided args to lowercase
+            #filter and convert args
             argsList = checkShowArgs(context)
+
 
             await context.send(embed = portfolio_show(user,user_name,argsList))
     #print unknown exeception for all other exceptions

@@ -1,3 +1,5 @@
+#File to interact with SQLite for users
+
 import sqlite3
 
 
@@ -11,6 +13,7 @@ cursor = con.cursor()
 
 def userCheck(user_id:int) -> None:
     '''Checks if a user is in the database and adds them if they are not'''
+
     if(not userExists(user_id)):
         cursor.execute("INSERT INTO Users (userID) VALUES (?)", (user_id,))
         con.commit()
@@ -20,5 +23,6 @@ def userCheck(user_id:int) -> None:
 
 def userExists(user_id:int) -> bool:
     '''Checks if a user is in the database'''
+
     user = cursor.execute("SELECT userID FROM Users WHERE userID = ?",(user_id,)).fetchall()
     return user
