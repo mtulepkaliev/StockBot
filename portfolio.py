@@ -11,34 +11,34 @@ from sqliteDB import hasTicker, updateTickerInfo
 from userSQLiteDB import userCheck, userExists
 
 
-def portfolio_add(user_id:int, ticker:str,avg_price:Decimal,share_amt:int) -> str:
+def portfolio_add(userID:int, ticker:str,avgPrice:Decimal,shareAmt:int) -> str:
     '''adds position to user's portfolio and returns message on if it was successful'''
 
-    userCheck(user_id)
+    userCheck(userID)
     if(not hasTicker(ticker)):
         updateTickerInfo(ticker)
-    result:int = insertPosition(user_id,ticker,avg_price,share_amt)
+    result:int = insertPosition(userID,ticker,avgPrice,shareAmt)
 
     if(result == 1):
         return "Successfully added position"
     else:
         return "Unable to add to portfolio"
 
-def portfolio_show(user_id:int,user_name:str,args:list) -> nextcord.Embed:
+def portfolio_show(userID:int,userName:str,args:list) -> nextcord.Embed:
     '''returns the user's portfolio as an embed'''
 
     #make sure the user exists
-    if(not userExists(user_id)):
+    if(not userExists(userID)):
         return nextcord.Embed(title="User does not have portfolio")
     
-    print('portfolio requested for user ' + user_id)
-    embed=nextcord.Embed(title=f'{user_name}\'s Portfolio')
+    print('portfolio requested for user ' + userID)
+    embed=nextcord.Embed(title=f'{userName}\'s Portfolio')
     totalCostBasis:Decimal = 0
 
     if('-full' in args):
 
         #get list of position ID's held by the user
-        userPostions = getUserPositions(user_id)
+        userPostions = getUserPositions(userID)
 
 
         for position in userPostions:
@@ -67,12 +67,12 @@ def portfolio_show(user_id:int,user_name:str,args:list) -> nextcord.Embed:
     if('-brief' in args or '-net' in args):
 
         #get a list of Rows for the user by stock
-        userTickers = getPositionInfoByStock(user_id)
+        userTickers = getPositionInfoByStock(userID)
 
         for ticker in userTickers:
 
             #save needed variables
-            ticker_name = ticker['symbol']
+            tickerName = ticker['symbol']
             numShares:int = int(ticker['totalShares'])
             avgPrice:Decimal = Decimal(ticker['averagePrice']).quantize(DECIMAL_FORMAT)
             costBasis = Decimal(ticker['costBasis']).quantize(DECIMAL_FORMAT)
@@ -81,7 +81,7 @@ def portfolio_show(user_id:int,user_name:str,args:list) -> nextcord.Embed:
 
             #add the ticker if we are showing all of the tickers
             if('-brief' in args):
-                embed.add_field(name=ticker_name, value= f'{numShares} shares @ an average of ${avgPrice} per share, total cost basis of {costBasis}', inline=False)
+                embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${avgPrice} per share, total cost basis of {costBasis}', inline=False)
         totalCostBasis.quantize(DECIMAL_FORMAT)
 
         #add the total cost basis of to the beginning

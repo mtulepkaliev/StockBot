@@ -11,18 +11,18 @@ con.row_factory = sqlite3.Row
 cursor = con.cursor()
 
 
-def userCheck(user_id:int) -> None:
+def userCheck(userID:int) -> None:
     '''Checks if a user is in the database and adds them if they are not'''
 
-    if(not userExists(user_id)):
-        cursor.execute("INSERT INTO Users (userID) VALUES (?)", (user_id,))
+    if(not userExists(userID)):
+        cursor.execute("INSERT INTO Users (userID) VALUES (?)", (userID,))
         con.commit()
         return
     else:
         return
 
-def userExists(user_id:int) -> bool:
+def userExists(userID:int) -> bool:
     '''Checks if a user is in the database'''
 
-    user = cursor.execute("SELECT userID FROM Users WHERE userID = ?",(user_id,)).fetchall()
+    user = cursor.execute("SELECT userID FROM Users WHERE userID = ?",(userID,)).fetchall()
     return user

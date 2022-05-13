@@ -11,12 +11,12 @@ con.row_factory = sqlite3.Row
 cursor = con.cursor()
 
 
-def insertPosition(user_id:int, ticker:str,avg_price:Decimal,share_amt:int) -> int:
+def insertPosition(userID:int, ticker:str,avgPrice:Decimal,shareAmt:int) -> int:
     '''inserts a position into the positions table and returns status code based on success'''
 
     try:
-        avg_price:float = float(avg_price)
-        cursor.execute("INSERT INTO Positions (userID,symbol,purchasePrice,numShares) VALUES(?,?,?,?)",(user_id,ticker,avg_price,share_amt))
+        avgPrice:float = float(avgPrice)
+        cursor.execute("INSERT INTO Positions (userID,symbol,purchasePrice,numShares) VALUES(?,?,?,?)",(userID,ticker,avgPrice,shareAmt))
         con.commit()
         return 1
     except Exception as e:
@@ -24,11 +24,11 @@ def insertPosition(user_id:int, ticker:str,avg_price:Decimal,share_amt:int) -> i
         print(e)
         return 0
 
-def getUserPositions(user_id:int) -> list[int]:
+def getUserPositions(userID:int) -> list[int]:
     '''gets a list of position ID's that are held by a user'''
     
     #get the position ID's
-    userPositions = cursor.execute("SELECT positionID FROM USER_POSITIONS WHERE userID = ?",(user_id,)).fetchall()
+    userPositions = cursor.execute("SELECT positionID FROM USER_POSITIONS WHERE userID = ?",(userID,)).fetchall()
     posList:list = []
 
 
@@ -38,13 +38,13 @@ def getUserPositions(user_id:int) -> list[int]:
     return posList
 
 
-def getPositionInfo(position_id:int) -> sqlite3.Row:
+def getPositionInfo(positionID:int) -> sqlite3.Row:
     '''returns all the information on a single position'''
 
-    position:sqlite3.Row = cursor.execute("SELECT * FROM USER_POSITIONS WHERE positionID = ?",(position_id,)).fetchone()
+    position:sqlite3.Row = cursor.execute("SELECT * FROM USER_POSITIONS WHERE positionID = ?",(positionID,)).fetchone()
     return position
     
-def getPositionInfoByStock(user_id:int) -> list[sqlite3.Row]:
+def getPositionInfoByStock(userID:int) -> list[sqlite3.Row]:
     '''returns all the positions held by a user grouped by the ticker'''
 
     position = cursor.execute('''
@@ -61,5 +61,5 @@ def getPositionInfoByStock(user_id:int) -> list[sqlite3.Row]:
     FROM USER_POSITIONS 
     WHERE userID=?
     GROUP BY symbol''',
-    (user_id,)).fetchall()
+    (userID,)).fetchall()
     return position

@@ -19,30 +19,30 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
 
     #retreve needed varaibles
     price = Decimal(tickerInfo['currentPrice']).quantize(DECIMAL_FORMAT)
-    pricechange = Decimal(tickerInfo['priceChange']).quantize(DECIMAL_FORMAT)
-    pctchange = Decimal(tickerInfo['percentChange'] * 100).quantize(DECIMAL_FORMAT)
+    priceChange = Decimal(tickerInfo['priceChange']).quantize(DECIMAL_FORMAT)
+    pctChange = Decimal(tickerInfo['percentChange'] * 100).quantize(DECIMAL_FORMAT)
 
-    pctchange = str(pctchange) + '%'
+    pctChange = str(pctChange) + '%'
 
     #set embed color and prefix to proper ones for red and green days
-    if (Decimal(pricechange) >= 0):   
-        pricechange = '+' + str(pricechange)
-        pctchange = '+' + pctchange
+    if (Decimal(priceChange) >= 0):   
+        priceChange = '+' + str(priceChange)
+        pctChange = '+' + pctChange
         embedColor = nextcord.Color.from_rgb(0,255,0)
     else:
         embedColor = nextcord.Color.from_rgb(255,0,0)
 
 
     #retreive needed output variables
-    ticker_name = tickerInfo['symbol']
-    short_name = tickerInfo['companyName']
-    yfinurl = 'https://finance.yahoo.com/quote/' + str(ticker_name)
-    footer_text = "Price data is delayed by 15 minutes"
+    tickerName = tickerInfo['symbol']
+    shortName = tickerInfo['companyName']
+    yfinURL = 'https://finance.yahoo.com/quote/' + str(tickerName)
+    footerText = "Price data is delayed by 15 minutes"
 
-    embed=nextcord.Embed(title=short_name, url=yfinurl, description=ticker_name, color=embedColor)
+    embed=nextcord.Embed(title=shortName, url=yfinURL, description=tickerName, color=embedColor)
     embed.add_field(name="Price", value=price, inline=False)
-    embed.add_field(name="Day Change", value=pricechange, inline=False)
-    embed.add_field(name="Percent Change", value=pctchange, inline=False)
+    embed.add_field(name="Day Change", value=priceChange, inline=False)
+    embed.add_field(name="Percent Change", value=pctChange, inline=False)
 
     #add ranges to embed if the user requested them
     if('-range' in args):
@@ -53,40 +53,40 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
         f2wkhigh = Decimal(tickerInfo['fiftyTwoWeekHigh']).quantize(DECIMAL_FORMAT)
 
         #format strings
-        day_range = f"{daylow} - {dayhigh}"
-        fifty_two_week_range = f"{f2wklow} - {f2wkhigh}"
+        dayRange = f"{daylow} - {dayhigh}"
+        fiftyTwoWeekRange = f"{f2wklow} - {f2wkhigh}"
 
         #add to embed
-        embed.add_field(name="Day Range", value=day_range, inline=False)
-        embed.add_field(name="52 Week Range", value=fifty_two_week_range, inline=False)
+        embed.add_field(name="Day Range", value=dayRange, inline=False)
+        embed.add_field(name="52 Week Range", value=fiftyTwoWeekRange, inline=False)
 
     #code to include logo if possible and add attribution
     if(tickerInfo['website'] != None):
-        logo_url = 'https://logo.clearbit.com/' + str(tickerInfo['website'])
+        logoURL = 'https://logo.clearbit.com/' + str(tickerInfo['website'])
 
         #add thumbnail and attribution if clearbit has a logo for the company (status 404 means no logo)
-        if(requests.head(logo_url).status_code != 404):
-            embed.set_thumbnail(url=logo_url)
-            footer_text = footer_text + ', Logo provided by Clearbit.com'
+        if(requests.head(logoURL).status_code != 404):
+            embed.set_thumbnail(url=logoURL)
+            footerText = footerText + ', Logo provided by Clearbit.com'
         else:
-            print("No logo avaliable for ticker " + ticker_name)
+            print("No logo avaliable for ticker " + tickerName)
     else:
-        print("No website provided for ticker " + ticker_name)
+        print("No website provided for ticker " + tickerName)
 
-    embed.set_footer(text=footer_text)
+    embed.set_footer(text=footerText)
 
     return embed
 
-async def isValidTicker(ticker_text:str,context):
+async def isValidTicker(tickerText:str,context):
     '''return true if the ticker is in the database, we make sure to only insert valid tickers, this prevents us from having to query yfinance'''
 
-    if(hasTicker(ticker_text)):
+    if(hasTicker(tickerText)):
         return True
 
     try:
-        ticker:yf.Ticker = yf.Ticker(ticker_text)
-        ticker_stats:dict = ticker.stats()
-        ticker_stats['price']['regularMarketPrice']
+        ticker:yf.Ticker = yf.Ticker(tickerText)
+        tickerStats:dict = ticker.stats()
+        tickerStats['price']['regularMarketPrice']
     except KeyError as e:
         #tell user they entered the wrong ticker
         print("Exception:" + str(e))

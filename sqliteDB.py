@@ -58,26 +58,26 @@ def checkTickerRefresh(tickerText:str) -> None:
 def updateTickerInfo(tickerText:str) -> None:
     '''updates the ticker info in the database'''
     ticker = yf.Ticker(tickerText)
-    ticker_stats:dict = ticker.stats()
+    tickerStats:dict = ticker.stats()
     print('Info received on ' + tickerText)
 
     #save the part of the dict we need (for readability purposes)
-    price_stats = ticker_stats['price']
+    priceStats = tickerStats['price']
 
     #retreive needed varaibles
-    currentPrice = float(price_stats['regularMarketPrice'])
-    priceChange = float(price_stats['regularMarketChange'])
-    pctChange = float(price_stats['regularMarketChangePercent'])
-    openPrice = float(price_stats['regularMarketOpen'])
-    daylow = float(price_stats['regularMarketDayLow'])
-    dayhigh = float(price_stats['regularMarketDayHigh'])
-    f2wklow = float(ticker_stats['summaryDetail']['fiftyTwoWeekLow'])
-    f2wkhigh = float(ticker_stats['summaryDetail']['fiftyTwoWeekHigh'])
-    short_name = price_stats['shortName']
+    currentPrice = float(priceStats['regularMarketPrice'])
+    priceChange = float(priceStats['regularMarketChange'])
+    pctChange = float(priceStats['regularMarketChangePercent'])
+    openPrice = float(priceStats['regularMarketOpen'])
+    dayLow = float(priceStats['regularMarketDayLow'])
+    dayHigh = float(priceStats['regularMarketDayHigh'])
+    f2wkLow = float(tickerStats['summaryDetail']['fiftyTwoWeekLow'])
+    f2wkHigh = float(tickerStats['summaryDetail']['fiftyTwoWeekHigh'])
+    shortName = priceStats['shortName']
 
     #adds the website if there is one
     try:
-        website = ticker_stats['summaryProfile']['website']
+        website = tickerStats['summaryProfile']['website']
     except KeyError:
         website = None
 
@@ -86,7 +86,7 @@ def updateTickerInfo(tickerText:str) -> None:
     cursor.execute(("REPLACE INTO Tickers "+
                     "(symbol,currentPrice,priceChange,percentChange,openPrice,lastRefresh,fiftyTwoWeekHigh,fiftyTwoWeekLow,dayHigh,dayLow,companyName,website) " +
                     "VALUES(?,?,?,?,?,strftime('%s'),?,?,?,?,?,?)"),
-                    (tickerText,currentPrice,priceChange,pctChange,openPrice,f2wkhigh,f2wklow,dayhigh,daylow,short_name,website))
+                    (tickerText,currentPrice,priceChange,pctChange,openPrice,f2wkHigh,f2wkLow,dayHigh,dayLow,shortName,website))
     con.commit()
 
     return
