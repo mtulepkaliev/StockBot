@@ -8,7 +8,7 @@ import requests
 import yfinance as yf
 from nextcord.ext import *
 from settings import DECIMAL_FORMAT
-from sqliteDB import getTickerInfo, hasTicker
+from sqliteDB import getTickerInfo, hasTicker, updateTickerInfo
 
 
 def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
@@ -87,6 +87,7 @@ async def isValidTicker(tickerText:str,context):
         ticker:yf.Ticker = yf.Ticker(tickerText)
         tickerStats:dict = ticker.stats()
         tickerStats['price']['regularMarketPrice']
+        updateTickerInfo(tickerText)
     except KeyError as e:
         #tell user they entered the wrong ticker
         print("Exception:" + str(e))
