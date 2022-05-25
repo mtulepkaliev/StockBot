@@ -97,7 +97,7 @@ def checkShowArgs(context) -> list:
     displayArgs:list = ["-net","-brief","-full"]
 
     #remove show from the list of args
-    args = context.args[1:]
+    args = context.args[2:]
 
     #convert all provided args to lowercase
     args = [s.lower() for s in args]
