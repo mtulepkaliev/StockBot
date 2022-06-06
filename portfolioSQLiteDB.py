@@ -63,3 +63,23 @@ def getPositionInfoByStock(userID:int) -> list[sqlite3.Row]:
     GROUP BY symbol''',
     (userID,)).fetchall()
     return position
+
+
+def positionBelongsToUser(positionID:int,userID:int) -> bool:
+    '''returns True or False based on if the given position belongs to the given user'''
+    position = cursor.execute('''
+    SELECT
+    userID,positionID
+    FROM USER_POSITIONS 
+    WHERE userID=? AND positionID=?''',
+    (userID,positionID)).fetchall()
+
+    return bool(position)
+
+def removePosition(positionID:int) -> None:
+    '''removes given position from the database'''
+    cursor.execute('''
+    DELETE FROM Positions
+    WHERE positionID=?''',(positionID,))
+    con.commit()
+    

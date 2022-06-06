@@ -9,6 +9,7 @@ import yfinance as yf
 from dotenv import load_dotenv
 from nextcord.ext import commands
 from portfolio import checkShowArgs, portfolio_add, portfolio_show
+from portfolioSQLiteDB import positionBelongsToUser, removePosition
 
 from yfincode import *
 
@@ -76,7 +77,15 @@ async def portfolio(context,*args):
 
 
             await context.send(embed = portfolio_show(user,userName,argsList))
-    #print unknown exeception for all other exceptions
+        if(command == 'remove'):
+            positionID:int = args[1]
+            if(not positionBelongsToUser(positionID,context.author.id)):
+                await context.send(content="That position does not belong to you")
+                return
+            removePosition(positionID)
+            await context.send(content="Position Removed")
+
+   #print unknown exeception for all other exceptions
     except Exception as e:
         traceback.print_exc()
         await context.send(content='Unknown Exception Occured, Please Try Again')
