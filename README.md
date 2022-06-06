@@ -1,5 +1,6 @@
 # StockBot
-Discord bot to provide stock information
+Discord bot to provide stock information<br />
+Written in python with SQLite
 
 ## Commands
 ### price
@@ -32,8 +33,14 @@ Shows the total cost basis for the given user <br />
 (default) Shows the average price, # of shares and cost basis of each ticker that the user holds <br />
 ```-full``` <br />
 Shows each position that the user hold not grouping by ticker
+
 ### remove
-Coming soon
+#### format:
+!stock portfolio remove \<position #\>
+#### function:
+Removes the given position from the user's portfolio
+#### Notes:
+You can get the position # from the show command with the -full argument
 
 ### change
 Coming soon
@@ -45,7 +52,6 @@ Coming soon
 Open '.env_example', insert your discord bot API key and rename to '.env' </br>
 Rename 'portfolio_ex.db' to 'portfolio.db'</br>
 Run stockbot.py </br>
-
 
 ## Dependencies
 ### Python 3.10
