@@ -17,7 +17,8 @@ from yfincode import *
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
-bot=commands.Bot(command_prefix='!stock ')
+intents = nextcord.Intents.all()
+bot=commands.Bot(command_prefix='!stock ',intents=intents)
 
 @bot.event
 async def on_ready():
@@ -25,6 +26,7 @@ async def on_ready():
 
 @bot.command()
 async def price(context,*args):
+    print("asked for price")
     tickerName:str = args[0]
     print('Ticker Requested:' + tickerName)
     try:
