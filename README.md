@@ -52,6 +52,7 @@ Coming soon
 Open '.env_example', insert your discord bot API key and rename to '.env' </br>
 Rename 'portfolio_ex.db' to 'portfolio.db'</br>
 Run stockbot.py </br>
+**Grant all priveleged intents to the bot**</br>
 
 ## Dependencies
 ### Python 3.10
