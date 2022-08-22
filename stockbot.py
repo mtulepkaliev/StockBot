@@ -17,7 +17,8 @@ from yfincode import *
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 
-intents = nextcord.Intents.all()
+intents = nextcord.Intents.default()
+intents.message_content = True
 bot=commands.Bot(command_prefix='!stock ',intents=intents)
 
 @bot.event
