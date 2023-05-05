@@ -58,26 +58,24 @@ def checkTickerRefresh(tickerText:str) -> None:
 def updateTickerInfo(tickerText:str) -> None:
     '''updates the ticker info in the database'''
     ticker = yf.Ticker(tickerText)
-    tickerStats:dict = ticker.stats()
     print('Info received on ' + tickerText)
-
-    #save the part of the dict we need (for readability purposes)
-    priceStats = tickerStats['price']
-
-    #retreive needed varaibles
-    currentPrice = float(priceStats['regularMarketPrice'])
-    priceChange = float(priceStats['regularMarketChange'])
-    pctChange = float(priceStats['regularMarketChangePercent'])
-    openPrice = float(priceStats['regularMarketOpen'])
-    dayLow = float(priceStats['regularMarketDayLow'])
-    dayHigh = float(priceStats['regularMarketDayHigh'])
-    f2wkLow = float(tickerStats['summaryDetail']['fiftyTwoWeekLow'])
-    f2wkHigh = float(tickerStats['summaryDetail']['fiftyTwoWeekHigh'])
-    shortName = priceStats['shortName']
-
-    #adds the website if there is one
+    tickerStats = ticker.info
     try:
-        website = tickerStats['summaryProfile']['website']
+        #retreive needed varaibles
+        currentPrice = float(tickerStats['currentPrice'])
+    except KeyError as e:
+        print(f'{e} not found in {tickerText}, is probably a fund')
+        currentPrice = float(ticker.history(period="1d", interval="1m").tail(1)['Close'].iloc[0])
+    openPrice = float(tickerStats['open'])
+    priceChange = currentPrice - openPrice
+    pctChange = priceChange / openPrice
+    dayLow = float(tickerStats['regularMarketDayLow'])
+    dayHigh = float(tickerStats['regularMarketDayHigh'])
+    f2wkLow = float(tickerStats['fiftyTwoWeekLow'])
+    f2wkHigh = float(tickerStats['fiftyTwoWeekHigh'])
+    shortName = tickerStats['shortName']
+    try:
+        website = tickerStats['website']
     except KeyError:
         website = None
 

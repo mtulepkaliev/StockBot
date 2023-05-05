@@ -1,6 +1,7 @@
 .env
 test.py
 ticker.json
+ticker_info_*.json
 stats.json
 requirements.txt
 TODO.txt

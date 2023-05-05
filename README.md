@@ -2,11 +2,6 @@
 Discord bot to provide stock information<br />
 Written in python with SQLite
 
-# NOTE
-## Currently not working due to changes in the yfinance API
-## Fix is WIP
-
-
 ## Commands
 ### price
 #### format:

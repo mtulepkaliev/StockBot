@@ -85,8 +85,8 @@ async def isValidTicker(tickerText:str,context):
 
     try:
         ticker:yf.Ticker = yf.Ticker(tickerText)
-        tickerStats:dict = ticker.stats()
-        tickerStats['price']['regularMarketPrice']
+        tickerStats:dict = ticker.info
+        tickerStats['symbol']
         updateTickerInfo(tickerText)
     except KeyError as e:
         #tell user they entered the wrong ticker
