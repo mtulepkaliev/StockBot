@@ -3,6 +3,7 @@
 from decimal import *
 from sqlite3 import Row
 from typing import Tuple
+from argparse import Namespace
 import nextcord
 import requests
 import yfinance as yf
@@ -11,9 +12,10 @@ from settings import DECIMAL_FORMAT
 from sqliteDB import getTickerInfo, hasTicker, updateTickerInfo
 
 
-def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
+def getPriceOutput(args:Namespace) -> nextcord.Embed:
     '''returns the embed to output on a ticker's info'''
     
+    tickerText:str = args.ticker
     #save the part of the dict we need (for readability purposes)
     tickerInfo:Row = getTickerInfo(tickerText)
 
@@ -25,7 +27,7 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
     pctChange = str(pctChange) + '%'
 
     #set embed color and prefix to proper ones for red and green days
-    if (Decimal(priceChange) >= 0):   
+    if (Decimal(priceChange) >= 0):
         priceChange = '+' + str(priceChange)
         pctChange = '+' + pctChange
         embedColor = nextcord.Color.from_rgb(0,255,0)
@@ -45,7 +47,7 @@ def getPriceOutput(tickerText:str,args:Tuple) -> nextcord.Embed:
     embed.add_field(name="Percent Change", value=pctChange, inline=False)
 
     #add ranges to embed if the user requested them
-    if('-range' in args):
+    if(args.range):
         #obtain variables
         daylow = Decimal(tickerInfo['dayLow']).quantize(DECIMAL_FORMAT)
         dayhigh = Decimal(tickerInfo['dayHigh']).quantize(DECIMAL_FORMAT)

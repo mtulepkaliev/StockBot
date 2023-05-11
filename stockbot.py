@@ -3,12 +3,13 @@
 import os
 import traceback
 from decimal import Decimal
+from argparse import ArgumentParser
 
 import nextcord
 import yfinance as yf
 from dotenv import load_dotenv
 from nextcord.ext import commands
-from portfolio import checkShowArgs, portfolio_add, portfolio_show
+from portfolio import portfolio_add, portfolio_show
 from portfolioSQLiteDB import positionBelongsToUser, removePosition
 
 from yfincode import *
@@ -27,13 +28,21 @@ async def on_ready():
 
 @bot.command()
 async def price(context,*args):
+    parser = ArgumentParser()
+    parser.add_argument('ticker',type=str)
+    parser.add_argument('-r','--range',action='store_true')
+
+    parsedArgs = parser.parse_args(args)
+
+    print(parsedArgs)
+
     print("asked for price")
-    tickerName:str = args[0]
+    tickerName:str = parsedArgs.ticker
     print('Ticker Requested:' + tickerName)
     try:
         #returns data if the ticker is valid
         if(await isValidTicker(tickerName,context)):
-            await context.send(embed=getPriceOutput(tickerName,args[1:len(args)]))
+            await context.send(embed=getPriceOutput(parsedArgs))
 
     #print unknown exeception for all other exceptions
     except Exception as e:
@@ -48,20 +57,25 @@ async def portfolio(context,*args):
         userID:str = str(context.author.id) 
         command:str = args[0]
 
+        parser = ArgumentParser()
+        parser.add_argument('command',type=str)
+
         #add command
         if(command == 'add'):
-            #retreive variables from args
-            ticker:str = args[1]
-            avgPrice:Decimal = Decimal(args[2])
-            shareAmt:int = int(args[3])
+            parser.add_argument('ticker',type=str)
+            parser.add_argument('avgPrice',type=Decimal)
+            parser.add_argument('shareAmt',type=int)
 
+            parsedArgs = parser.parse_args(args)
+
+            print(f"args:{parsedArgs}")
             #check for valid ticker
-            if(not(await isValidTicker(ticker,context))):
+            if(not(await isValidTicker(parsedArgs.ticker,context))):
                 await context.send(content="Invalid Ticker Provided")
                 return
                 
             #add to the user's portfolio and returns the return message
-            returnMessage = portfolio_add(userID, ticker,avgPrice,shareAmt)
+            returnMessage = portfolio_add(userID, parsedArgs)
             await context.send(content=returnMessage)
         if(command == 'show'):
 
@@ -75,11 +89,23 @@ async def portfolio(context,*args):
                 user:str = str(context.author.id)
                 userName:str = (context.author.display_name)
 
+            # add mutually exclusive group of arguments
+            showArgGroup = parser.add_mutually_exclusive_group()
+            showArgGroup.add_argument('-n', '--net', action='store_true')
+            showArgGroup.add_argument('-b', '--brief', action='store_true')
+            showArgGroup.add_argument('-f', '--full', action='store_true')
+
             #filter and convert args
-            argsList = checkShowArgs(context)
+            #argsList = checkShowArgs(context)
 
+            parsedArgs = parser.parse_args(args)
 
-            await context.send(embed = portfolio_show(user,userName,argsList))
+            #set the default to brief if no other option is selected, weird workaround
+            if not any([parsedArgs.net, parsedArgs.brief, parsedArgs.full]):
+                parsedArgs.brief = True
+
+            #print(f"args:{parsedArgs}")
+            await context.send(embed = portfolio_show(user,userName,parsedArgs))
         if(command == 'remove'):
             positionID:int = args[1]
             if(not positionBelongsToUser(positionID,context.author.id)):

@@ -9,7 +9,7 @@ Written in python with SQLite
 #### returns:
 Company name, ticker, price, day change, % day change
 #### args:
-```-range``` <br />
+```--range``` <br />
 returns the 52 week range and day range of the specified ticker
 
 ## Portfolio Commands
@@ -27,11 +27,11 @@ Adds the given number of shares at the given average price for given ticker to t
 Shows the given user's portfolio, shows the sender's portfolio if no user is specified
 
 #### display args:
-```-net``` <br />
+```--net``` <br />
 Shows the total cost basis for the given user <br />
-```-brief``` <br />
+```--brief``` <br />
 (default) Shows the average price, # of shares and cost basis of each ticker that the user holds <br />
-```-full``` <br />
+```--full``` <br />
 Shows each position that the user hold not grouping by ticker
 
 ### remove
