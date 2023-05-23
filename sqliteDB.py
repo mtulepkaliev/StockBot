@@ -73,7 +73,16 @@ def updateTickerInfo(tickerText:str) -> None:
     dayHigh = float(tickerStats['regularMarketDayHigh'])
     f2wkLow = float(tickerStats['fiftyTwoWeekLow'])
     f2wkHigh = float(tickerStats['fiftyTwoWeekHigh'])
-    shortName = tickerStats['shortName']
+    try:
+        shortName = tickerStats['shortName']
+    except KeyError:
+        print(f'{tickerText} has no shortName,trying longName')
+        try:
+            shortName = tickerStats['longName']
+        except KeyError:
+            shortName = tickerText
+            print(f'{tickerText} has no longName,using symbol')
+
     try:
         website = tickerStats['website']
     except KeyError:

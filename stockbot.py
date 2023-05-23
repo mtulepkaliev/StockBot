@@ -77,7 +77,7 @@ async def portfolio(context,*args):
             #add to the user's portfolio and returns the return message
             returnMessage = portfolio_add(userID, parsedArgs)
             await context.send(content=returnMessage)
-        if(command == 'show'):
+        if(command == 'show' or command == 'p/l' or command == 'pl'):
 
             #determine if the user requested another user's portfolio
             try:
@@ -95,6 +95,11 @@ async def portfolio(context,*args):
             showArgGroup.add_argument('-b', '--brief', action='store_true')
             showArgGroup.add_argument('-f', '--full', action='store_true')
 
+            if(command == 'p/l' or command == 'pl'):
+                timeArgGroup = parser.add_mutually_exclusive_group()
+                timeArgGroup.add_argument('-d', '--day', action='store_true')
+                timeArgGroup.add_argument('-t', '--total', action='store_true')
+                #set the default to brief if no other option is selected, weird workaround
             #filter and convert args
             #argsList = checkShowArgs(context)
 
@@ -104,8 +109,15 @@ async def portfolio(context,*args):
             if not any([parsedArgs.net, parsedArgs.brief, parsedArgs.full]):
                 parsedArgs.brief = True
 
-            #print(f"args:{parsedArgs}")
-            await context.send(embed = portfolio_show(user,userName,parsedArgs))
+            print(f"args:{parsedArgs}")
+            if(command == 'show'):
+                await context.send(embed = portfolio_show(user,userName,parsedArgs))
+            elif(command == 'p/l' or command == 'pl'):
+                if not any([parsedArgs.total]):
+                    parsedArgs.day = True
+                print(f"args:{parsedArgs}")
+                await context.send(embed = portfolio_show(user,userName,parsedArgs))
+
         if(command == 'remove'):
             positionID:int = args[1]
             if(not positionBelongsToUser(positionID,context.author.id)):
