@@ -79,7 +79,7 @@ def getPriceOutput(args:Namespace) -> nextcord.Embed:
 
     return embed
 
-async def isValidTicker(tickerText:str,context):
+async def isValidTicker(tickerText:str):
     '''return true if the ticker is in the database, we make sure to only insert valid tickers, this prevents us from having to query yfinance'''
 
     if(hasTicker(tickerText)):
@@ -90,10 +90,9 @@ async def isValidTicker(tickerText:str,context):
         tickerStats:dict = ticker.info
         tickerStats['symbol']
         updateTickerInfo(tickerText)
-    except KeyError as e:
+    except requests.exceptions.HTTPError as e:
         #tell user they entered the wrong ticker
         print("Exception:" + str(e))
-        await context.send(content='Invalid Ticker, please try again')
         return False
     else:
         return True

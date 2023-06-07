@@ -32,7 +32,11 @@ async def price(context,*args):
     parser.add_argument('ticker',type=str)
     parser.add_argument('-r','--range',action='store_true')
 
-    parsedArgs = parser.parse_args(args)
+    try:
+        parsedArgs = parser.parse_args(args)
+    except SystemExit as exit:
+        await context.send(content='Invalid Arguments Provided')
+        return
 
     print(parsedArgs)
 
@@ -41,8 +45,10 @@ async def price(context,*args):
     print('Ticker Requested:' + tickerName)
     try:
         #returns data if the ticker is valid
-        if(await isValidTicker(tickerName,context)):
+        if(await isValidTicker(tickerName)):
             await context.send(embed=getPriceOutput(parsedArgs))
+        else:
+            await context.send(content="Invalid Ticker Provided")
 
     #print unknown exeception for all other exceptions
     except Exception as e:
@@ -103,7 +109,11 @@ async def portfolio(context,*args):
             #filter and convert args
             #argsList = checkShowArgs(context)
 
-            parsedArgs = parser.parse_args(args)
+            try:
+                parsedArgs = parser.parse_args(args)
+            except SystemExit as exit:
+                await context.send(content='Invalid Arguments Provided')
+                return
 
             #set the default to brief if no other option is selected, weird workaround
             if not any([parsedArgs.net, parsedArgs.brief, parsedArgs.full]):
