@@ -53,6 +53,7 @@ def getPositionInfoByStock(userID:int) -> list[sqlite3.Row]:
     currentPrice, 
     openPrice,
     priceChange,
+    priceHint,
     total(purchasePrice * numShares)/total(numShares) AS "averagePrice",
     SUM(numShares) AS "totalShares",
     (total(purchasePrice * numShares)/total(numShares)) * SUM(numShares) AS "costBasis",

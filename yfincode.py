@@ -8,9 +8,13 @@ import nextcord
 import requests
 import yfinance as yf
 from nextcord.ext import *
-from settings import DECIMAL_FORMAT
+from settings import DOLLAR_FORMAT
 from sqliteDB import getTickerInfo, hasTicker, updateTickerInfo
 
+def decimalToPrecisionString(decimal:Decimal,precision:int) -> str:
+    '''returns a string of a decimal with the given precision'''
+    quanitzeFormat = Decimal(Decimal(10)**(-1 * precision))
+    return f"{decimal.quantize(quanitzeFormat):.{precision}f}"
 
 def getPriceOutput(args:Namespace) -> nextcord.Embed:
     '''returns the embed to output on a ticker's info'''
@@ -19,10 +23,15 @@ def getPriceOutput(args:Namespace) -> nextcord.Embed:
     #save the part of the dict we need (for readability purposes)
     tickerInfo:Row = getTickerInfo(tickerText)
 
+    priceHint = int(tickerInfo['priceHint'])
+
     #retreve needed varaibles
-    price = Decimal(tickerInfo['currentPrice']).quantize(DECIMAL_FORMAT)
-    priceChange = Decimal(tickerInfo['priceChange']).quantize(DECIMAL_FORMAT)
-    pctChange = Decimal(tickerInfo['percentChange'] * 100).quantize(DECIMAL_FORMAT)
+    price = decimalToPrecisionString(Decimal(tickerInfo['currentPrice']),priceHint)
+    priceChange:str = decimalToPrecisionString(Decimal(tickerInfo['priceChange']),priceHint)
+    pctChange = Decimal(tickerInfo['percentChange'] * 100).quantize(DOLLAR_FORMAT)
+
+    #print(Decimal(tickerInfo['priceChange']))
+    #print(priceChange)
 
     pctChange = str(pctChange) + '%'
 
@@ -43,16 +52,18 @@ def getPriceOutput(args:Namespace) -> nextcord.Embed:
 
     embed=nextcord.Embed(title=shortName, url=yfinURL, description=tickerName, color=embedColor)
     embed.add_field(name="Price", value=price, inline=False)
+
+    
     embed.add_field(name="Day Change", value=priceChange, inline=False)
     embed.add_field(name="Percent Change", value=pctChange, inline=False)
 
     #add ranges to embed if the user requested them
     if(args.range):
         #obtain variables
-        daylow = Decimal(tickerInfo['dayLow']).quantize(DECIMAL_FORMAT)
-        dayhigh = Decimal(tickerInfo['dayHigh']).quantize(DECIMAL_FORMAT)
-        f2wklow = Decimal(tickerInfo['fiftyTwoWeekLow']).quantize(DECIMAL_FORMAT)
-        f2wkhigh = Decimal(tickerInfo['fiftyTwoWeekHigh']).quantize(DECIMAL_FORMAT)
+        daylow = decimalToPrecisionString(Decimal(tickerInfo['dayLow']),priceHint)
+        dayhigh = decimalToPrecisionString(Decimal(tickerInfo['dayHigh']),priceHint)
+        f2wklow = decimalToPrecisionString(Decimal(tickerInfo['fiftyTwoWeekLow']),priceHint)
+        f2wkhigh = decimalToPrecisionString(Decimal(tickerInfo['fiftyTwoWeekHigh']),priceHint)
 
         #format strings
         dayRange = f"{daylow} - {dayhigh}"

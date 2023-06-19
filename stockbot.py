@@ -76,7 +76,7 @@ async def portfolio(context,*args):
 
             print(f"args:{parsedArgs}")
             #check for valid ticker
-            if(not(await isValidTicker(parsedArgs.ticker,context))):
+            if(not(await isValidTicker(parsedArgs.ticker))):
                 await context.send(content="Invalid Ticker Provided")
                 return
                 

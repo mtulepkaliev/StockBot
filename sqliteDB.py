@@ -6,6 +6,7 @@ from typing import *
 import yfinance as yf
 
 from settings import REFRESH_TIMEOUT_SEC
+from decimal import Decimal
 
 #establish connection and cursor to return rows
 con = sqlite3.connect("portfolio.db")
@@ -62,17 +63,18 @@ def updateTickerInfo(tickerText:str) -> None:
     tickerStats = ticker.info
     try:
         #retreive needed varaibles
-        currentPrice = float(tickerStats['currentPrice'])
+        currentPrice = Decimal(tickerStats['currentPrice'])
     except KeyError as e:
         print(f'{e} not found in {tickerText}, is probably a fund')
-        currentPrice = float(ticker.history(period="1d", interval="1m").tail(1)['Close'].iloc[0])
-    openPrice = float(tickerStats['open'])
+        currentPrice = Decimal(ticker.history(period="1d", interval="1m").tail(1)['Close'].iloc[0])
+    openPrice = Decimal(tickerStats['open'])
     priceChange = currentPrice - openPrice
     pctChange = priceChange / openPrice
-    dayLow = float(tickerStats['regularMarketDayLow'])
-    dayHigh = float(tickerStats['regularMarketDayHigh'])
-    f2wkLow = float(tickerStats['fiftyTwoWeekLow'])
-    f2wkHigh = float(tickerStats['fiftyTwoWeekHigh'])
+    dayLow = Decimal(tickerStats['regularMarketDayLow'])
+    dayHigh = Decimal(tickerStats['regularMarketDayHigh'])
+    f2wkLow = Decimal(tickerStats['fiftyTwoWeekLow'])
+    f2wkHigh = Decimal(tickerStats['fiftyTwoWeekHigh'])
+    priceHint = int(tickerStats['priceHint'])
     try:
         shortName = tickerStats['shortName']
     except KeyError:
@@ -91,9 +93,9 @@ def updateTickerInfo(tickerText:str) -> None:
 
     #insert into database
     cursor.execute(("REPLACE INTO Tickers "+
-                    "(symbol,currentPrice,priceChange,percentChange,openPrice,lastRefresh,fiftyTwoWeekHigh,fiftyTwoWeekLow,dayHigh,dayLow,companyName,website) " +
-                    "VALUES(?,?,?,?,?,strftime('%s'),?,?,?,?,?,?)"),
-                    (tickerText,currentPrice,priceChange,pctChange,openPrice,f2wkHigh,f2wkLow,dayHigh,dayLow,shortName,website))
+                    "(symbol,currentPrice,priceChange,percentChange,openPrice,lastRefresh,fiftyTwoWeekHigh,fiftyTwoWeekLow,dayHigh,dayLow,companyName,website,priceHint) " +
+                    "VALUES(?,?,?,?,?,strftime('%s'),?,?,?,?,?,?,?)"),
+                    (tickerText,str(currentPrice),str(priceChange),str(pctChange),str(openPrice),str(f2wkHigh),str(f2wkLow),str(dayHigh),str(dayLow),shortName,website,priceHint))
     con.commit()
 
     return

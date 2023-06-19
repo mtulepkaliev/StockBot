@@ -6,9 +6,10 @@ import nextcord
 
 from portfolioSQLiteDB import (getPositionInfo, getPositionInfoByStock,
                                getUserPositions, insertPosition)
-from settings import DECIMAL_FORMAT
+from settings import DOLLAR_FORMAT
 from sqliteDB import hasTicker, updateTickerInfo, getTickerInfo
 from userSQLiteDB import userCheck, userExists
+from yfincode import decimalToPrecisionString
 
 
 def portfolio_add(userID:int, parsedArgs:Namespace) -> str:
@@ -55,33 +56,37 @@ def portfolio_show(userID:int,userName:str,showArgs:Namespace) -> nextcord.Embed
             positionId = positionInfo['positionID']
             ticker = positionInfo['symbol']
             numShares:int = int(positionInfo['numShares'])
-            sharePrice:Decimal = Decimal(positionInfo['purchasePrice']).quantize(DECIMAL_FORMAT)
-            costBasis = Decimal(positionInfo['costBasis']).quantize(DECIMAL_FORMAT)
+
+            priceHint:int = positionInfo['priceHint']
+            sharePriceFormat = Decimal(Decimal(10)**(-1 * priceHint))
+
+            sharePrice:Decimal = Decimal(positionInfo['purchasePrice'])
+            costBasis:Decimal = Decimal(positionInfo['costBasis']).quantize(DOLLAR_FORMAT)
 
             totalCostBasis += costBasis
 
             if(not profitLoss):
                 #add the position to the embed
-                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${sharePrice} per share, total cost basis of ${costBasis}', inline=False)
+                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${decimalToPrecisionString(sharePrice,priceHint)} per share, total cost basis of ${costBasis}', inline=False)
             else:
                 #get the current price of the stock
-                currentPrice = Decimal(getTickerInfo(ticker)['currentPrice']).quantize(DECIMAL_FORMAT)
+                currentPrice = Decimal(getTickerInfo(ticker)['currentPrice'])
                 #calculate the profit/loss
-                profitLoss = Decimal((currentPrice - sharePrice) * numShares).quantize(DECIMAL_FORMAT)
+                profitLoss = Decimal((currentPrice - sharePrice) * numShares).quantize(DOLLAR_FORMAT)
                 #calculate the percent profit/loss
-                percentProfitLoss = Decimal((profitLoss / costBasis) * 100).quantize(DECIMAL_FORMAT)
+                percentProfitLoss = Decimal((profitLoss / costBasis) * 100).quantize(DOLLAR_FORMAT)
                 #add the position to the embed
-                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${sharePrice} per share, total cost basis of ${costBasis}, current profit/loss of ${profitLoss} ({percentProfitLoss}%)', inline=False)
+                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${decimalToPrecisionString(sharePrice,priceHint)} per share, total cost basis of ${costBasis}, current profit/loss of ${profitLoss} ({percentProfitLoss}%)', inline=False)
 
-                totalPortfolioMarketValue += Decimal(currentPrice * numShares).quantize(DECIMAL_FORMAT)
+                totalPortfolioMarketValue += Decimal(currentPrice * numShares).quantize(DOLLAR_FORMAT)
         
-        totalCostBasis.quantize(DECIMAL_FORMAT)
+        totalCostBasis.quantize(DOLLAR_FORMAT)
 
         #add the total cost basis to the beginning
         embed.insert_field_at(0,name="Total Cost basis",value=f'${totalCostBasis}')
         if(profitLoss):
-            totalProfitLoss:Decimal = Decimal(totalPortfolioMarketValue - totalCostBasis).quantize(DECIMAL_FORMAT)
-            totalPercentProfitLoss:Decimal = Decimal((totalProfitLoss / totalCostBasis) * 100).quantize(DECIMAL_FORMAT)
+            totalProfitLoss:Decimal = Decimal(totalPortfolioMarketValue - totalCostBasis).quantize(DOLLAR_FORMAT)
+            totalPercentProfitLoss:Decimal = Decimal((totalProfitLoss / totalCostBasis) * 100).quantize(DOLLAR_FORMAT)
             embed.insert_field_at(1,name="Total Profit/Loss",value=f'${totalProfitLoss} ({totalPercentProfitLoss}%)')
         return embed
 
@@ -95,28 +100,31 @@ def portfolio_show(userID:int,userName:str,showArgs:Namespace) -> nextcord.Embed
             #save needed variables
             tickerName = ticker['symbol']
             numShares:int = int(ticker['totalShares'])
-            avgPrice:Decimal = Decimal(ticker['averagePrice']).quantize(DECIMAL_FORMAT)
-            costBasis = Decimal(ticker['costBasis']).quantize(DECIMAL_FORMAT)
+            avgPrice:Decimal = Decimal(ticker['averagePrice'])
+            costBasis = Decimal(ticker['costBasis']).quantize(DOLLAR_FORMAT)
+
+            priceHint:int = ticker['priceHint']
+            sharePriceFormat = Decimal(Decimal(10)**(-1 * priceHint))
 
             totalCostBasis += costBasis
 
             #add the ticker if we are showing all of the tickers
             if(profitLoss):
-                currentPrice:Decimal = Decimal(getTickerInfo(tickerName)['currentPrice']).quantize(DECIMAL_FORMAT)
-                profitLoss:Decimal = Decimal((currentPrice - avgPrice) * numShares).quantize(DECIMAL_FORMAT)
-                percentProfitLoss:Decimal = Decimal((profitLoss / costBasis) * 100).quantize(DECIMAL_FORMAT)
+                currentPrice:Decimal = Decimal(getTickerInfo(tickerName)['currentPrice'])
+                profitLoss:Decimal = Decimal((currentPrice - avgPrice) * numShares).quantize(DOLLAR_FORMAT)
+                percentProfitLoss:Decimal = Decimal((profitLoss / costBasis) * 100).quantize(DOLLAR_FORMAT)
 
-                totalPortfolioMarketValue += Decimal(currentPrice * numShares).quantize(DECIMAL_FORMAT)
+                totalPortfolioMarketValue += Decimal(currentPrice * numShares).quantize(DOLLAR_FORMAT)
                 if(showArgs.brief):
-                    embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${avgPrice} per share, total cost basis of {costBasis}, current profit/loss of ${profitLoss} ({percentProfitLoss}%)', inline=False)
+                    embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${decimalToPrecisionString(avgPrice,priceHint)} per share, total cost basis of {costBasis}, current profit/loss of ${profitLoss} ({percentProfitLoss}%)', inline=False)
             elif(showArgs.brief):
-                embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${avgPrice} per share, total cost basis of {costBasis}', inline=False)
-        totalCostBasis.quantize(DECIMAL_FORMAT)
+                embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${decimalToPrecisionString(avgPrice,priceHint)} per share, total cost basis of {costBasis}', inline=False)
+        totalCostBasis.quantize(DOLLAR_FORMAT)
 
         #add the total cost basis of to the beginning
         embed.insert_field_at(0,name="Total Cost basis",value=f'${totalCostBasis}')
         if(profitLoss):
-            totalProfitLoss:Decimal = Decimal(totalPortfolioMarketValue - totalCostBasis).quantize(DECIMAL_FORMAT)
-            totalPercentProfitLoss:Decimal = Decimal((totalProfitLoss / totalCostBasis) * 100).quantize(DECIMAL_FORMAT)
+            totalProfitLoss:Decimal = Decimal(totalPortfolioMarketValue - totalCostBasis).quantize(DOLLAR_FORMAT)
+            totalPercentProfitLoss:Decimal = Decimal((totalProfitLoss / totalCostBasis) * 100).quantize(DOLLAR_FORMAT)
             embed.insert_field_at(1,name="Total Profit/Loss",value=f'${totalProfitLoss} ({totalPercentProfitLoss}%)')
         return embed
