@@ -2,9 +2,14 @@
 
 ## Current Issues
 
+### Output formatiing
+For p/l and other commands, the output is very confusin, need to find better way to display it.
 
-### Displaying/Calculating stock prices for penny stocks/low value coins
-For stocks and coins that go beyond 2 decimal places, it is truncated, this becomes and issue for coins like SHIB-USD because it conisders the value to be 0 when running calculations <br/>
-The issue with calculations might be able to be fixed by not quantizing decimal values until they need to be displayed ~~but figuring out how many values to be dispalyed <br/>
-will be a bigger issue~~ <br/>
-the json data returned from yfinance includes a pricehint field that can be used to determine how many decimal places to display, need to figure out how to store this, possibly in database, might store the pricehint value as '2' or maybe as '0.01' and then use that to determine how many decimal places to display, dont want to have to do those extra calculations every time we get ticker info though
+### Command line arguments parsing
+Need to refactor the code for command line parsing as it is clogging up the main function and also code is repeated in several points
+
+
+## Potential Features
+
+### imolement automated testing for the code
+Need to find out how to call the discord function triggers without having to manually send messages
