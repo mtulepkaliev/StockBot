@@ -69,7 +69,7 @@ def portfolio_show(showArgs:Namespace) -> nextcord.Embed:
 
             if(not profitLoss):
                 #add the position to the embed
-                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${decimalToPrecisionString(sharePrice,priceHint)} per share, total cost basis of ${costBasis}', inline=False)
+                embed.add_field(name=f'Position #{positionId}', value= f'{numShares} shares | Mkt Value of ${costBasis} | Avg ${decimalToPrecisionString(avgPrice,priceHint)}/share', inline=False)
             else:
                 #get the current price of the stock
                 currentPrice = Decimal(getTickerInfo(ticker)['currentPrice'])
@@ -78,7 +78,7 @@ def portfolio_show(showArgs:Namespace) -> nextcord.Embed:
                 #calculate the percent profit/loss
                 percentProfitLoss = Decimal((profitLoss / costBasis) * 100).quantize(DOLLAR_FORMAT)
                 #add the position to the embed
-                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares for ${decimalToPrecisionString(sharePrice,priceHint)} per share, total cost basis of ${costBasis}, current profit/loss of ${profitLoss} ({percentProfitLoss}%)', inline=False)
+                embed.add_field(name=f'Position #{positionId}', value= f'{ticker}:{numShares} shares | Mkt Value of ${costBasis} | P/L {profitLoss:+g} ({percentProfitLoss:+g}%)', inline=False)
 
                 totalPortfolioMarketValue += Decimal(currentPrice * numShares).quantize(DOLLAR_FORMAT)
         
@@ -118,9 +118,9 @@ def portfolio_show(showArgs:Namespace) -> nextcord.Embed:
 
                 totalPortfolioMarketValue += Decimal(currentPrice * numShares).quantize(DOLLAR_FORMAT)
                 if(showArgs.brief):
-                    embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${decimalToPrecisionString(avgPrice,priceHint)} per share, total cost basis of {costBasis}, current profit/loss of ${profitLoss} ({percentProfitLoss}%)', inline=False)
+                    embed.add_field(name=tickerName, value= f'{numShares} shares | Mkt Value of ${costBasis} | P/L {profitLoss:+g} ({percentProfitLoss:+g}%)', inline=False)
             elif(showArgs.brief):
-                embed.add_field(name=tickerName, value= f'{numShares} shares @ an average of ${decimalToPrecisionString(avgPrice,priceHint)} per share, total cost basis of {costBasis}', inline=False)
+                embed.add_field(name=tickerName, value= f'{numShares} shares | Mkt Value of ${costBasis} | Avg ${decimalToPrecisionString(avgPrice,priceHint)}/share', inline=False)
         totalCostBasis.quantize(DOLLAR_FORMAT)
 
         #add the total cost basis of to the beginning
