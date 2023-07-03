@@ -1,7 +1,7 @@
 #file for portfolio functions
 
 from decimal import Decimal
-from argparse import Namespace
+from argparse import Namespace, ArgumentParser
 import nextcord
 
 from portfolioSQLiteDB import (getPositionInfo, getPositionInfoByStock,
@@ -12,9 +12,9 @@ from userSQLiteDB import userCheck, userExists
 from yfincode import decimalToPrecisionString
 
 
-def portfolio_add(userID:int, parsedArgs:Namespace) -> str:
+def portfolio_add(parsedArgs:Namespace) -> str:
     '''adds position to user's portfolio and returns message on if it was successful'''
-
+    userID:str = parsedArgs.userID
     ticker = parsedArgs.ticker
     userCheck(userID)
     if(not hasTicker(ticker)):
@@ -26,8 +26,10 @@ def portfolio_add(userID:int, parsedArgs:Namespace) -> str:
     else:
         return "Unable to add to portfolio"
 
-def portfolio_show(userID:int,userName:str,showArgs:Namespace) -> nextcord.Embed:
+def portfolio_show(showArgs:Namespace) -> nextcord.Embed:
     '''returns the user's portfolio as an embed'''
+    userID = showArgs.userID
+    userName = showArgs.userName
 
     profitLoss:bool = (showArgs.command == 'pl' or showArgs.command == 'p/l')
         
@@ -128,3 +130,65 @@ def portfolio_show(userID:int,userName:str,showArgs:Namespace) -> nextcord.Embed
             totalPercentProfitLoss:Decimal = Decimal((totalProfitLoss / totalCostBasis) * 100).quantize(DOLLAR_FORMAT)
             embed.insert_field_at(1,name="Total Profit/Loss",value=f'${totalProfitLoss} ({totalPercentProfitLoss}%)')
         return embed
+    
+async def parsePortfolioArgs(context,args:tuple) -> Namespace:
+    '''parses the arguments for the portfolio commands'''
+    command:str = args[0]
+
+    parser = ArgumentParser()
+    parser.add_argument('command',type=str)
+
+    #add command
+    if(command == 'remove'):
+        parser.add_argument('positionID',type=int)
+        return parser.parse_args(args)
+    if(command == 'add'):
+        parser.add_argument('ticker',type=str)
+        parser.add_argument('avgPrice',type=Decimal)
+        parser.add_argument('shareAmt',type=int)
+
+        parsedArgs = parser.parse_args(args)
+        parsedArgs.userID = str(context.author.id)
+        return parsedArgs
+    if(command == 'show' or command == 'p/l' or command == 'pl'):
+        
+        # add positional argument for the user mention that may be included
+        parser.add_argument('user',type=str,nargs='?',default=None)
+        # add mutually exclusive group of arguments for what to show
+        showArgGroup = parser.add_mutually_exclusive_group()
+        showArgGroup.add_argument('-n', '--net', action='store_true')
+        showArgGroup.add_argument('-b', '--brief', action='store_true')
+        showArgGroup.add_argument('-f', '--full', action='store_true')
+
+        if(command == 'p/l' or command == 'pl'):
+            timeArgGroup = parser.add_mutually_exclusive_group()
+            timeArgGroup.add_argument('-d', '--day', action='store_true')
+            timeArgGroup.add_argument('-t', '--total', action='store_true')
+        #filter and convert args
+        #argsList = checkShowArgs(context)
+
+        try:
+            parsedArgs = parser.parse_args(args)
+        except SystemExit as exit:
+            raise Exception("Invalid Arguments Provided")
+
+        #set the default to brief if no other option is selected, weird workaround
+        if not any([parsedArgs.net, parsedArgs.brief, parsedArgs.full]):
+            parsedArgs.brief = True
+
+        if(command == 'p/l' or command == 'pl'):
+            if not any([parsedArgs.total,parsedArgs.day]):
+                parsedArgs.day = True
+
+        #determine if the user requested another user's portfolio
+        try:
+            user:str = str(context.message.mentions[0].id)
+            userName:str = context.message.mentions[0].display_name
+        except IndexError as e:
+            print(e)
+            print("No user specified, defaulting to sender")
+            user:str = str(context.author.id)
+            userName:str = (context.author.display_name)
+        parsedArgs.userID = user
+        parsedArgs.userName = userName
+        return parsedArgs
