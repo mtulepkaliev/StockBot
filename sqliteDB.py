@@ -52,7 +52,10 @@ def checkTickerRefresh(tickerText:str) -> None:
     #update the ticker info if it is too far out of date
     if(secondsSinceUpdate > REFRESH_TIMEOUT_SEC):
         print("Updating info on " + tickerText)
-        updateTickerInfo(tickerText)
+        try:
+            updateTickerInfo(tickerText)
+        except ValueError as e:
+            print(e)
     return
 
 
@@ -66,7 +69,11 @@ def updateTickerInfo(tickerText:str) -> None:
         currentPrice = Decimal(tickerStats['currentPrice'])
     except KeyError as e:
         print(f'{e} not found in {tickerText}, is probably a fund')
-        currentPrice = Decimal(ticker.history(period="1d", interval="1m").tail(1)['Close'].iloc[0])
+        try:
+            currentPrice = Decimal(ticker.history(period="1d", interval="1m").tail(1)['Close'].iloc[0])
+        except Exception as e:
+            raise ValueError(f'Not able to obtain data for {tickerText}, using last value')
+            return
     openPrice = Decimal(tickerStats['open'])
     priceChange = currentPrice - openPrice
     pctChange = priceChange / openPrice
